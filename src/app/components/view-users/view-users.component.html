@@ -1,16 +1,38 @@
 <div class="container-fluid">
-    <h1 class="display-4">View Users</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h1 class="display-4 mb-0">View Users</h1>
+        </div>
+        <div class="col-md-4 mt-auto">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search..." aria-label="Search"
+                    aria-describedby="addon" [(ngModel)]="search">
+            </div>
+        </div>
+    </div>
+
     <table class="table">
         <thead>
-            <tr>
-                <th scope="col" [appSort]="sortData" data-name="lastName">Last Name<span *ngIf="sortData.sortProperty === 'lastName'">{{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}</span></th>
-                <th scope="col" [appSort]="sortData" data-name="firstName">First Name<span *ngIf="sortData.sortProperty === 'firstName'">{{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}</span></th>
+            <tr class="d-flex">
+                <th scope="col" [appSort]="sortData" data-name="lastName" class="col-6">
+                    Last Name
+                    <span *ngIf="sortData.sortProperty === 'lastName'">
+                        {{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}
+                    </span>
+                </th>
+                <th scope="col" [appSort]="sortData" data-name="firstName" class="col-6">
+                    First Name
+                    <span *ngIf="sortData.sortProperty === 'firstName'">
+                        {{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}
+                    </span>
+                </th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let r of allLoadedUsers()">
-                <td>{{r.lastName}}</td>
-                <td>{{r.firstName}}</td>
+            <tr class="d-flex" *ngFor="let r of filteredUsers()">
+                <td class="col-6">{{r.lastName}}</td>
+                <td class="col-6">{{r.firstName}}</td>
             </tr>
         </tbody>
     </table>

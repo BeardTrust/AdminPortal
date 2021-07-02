@@ -1,7 +1,7 @@
 import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
 
 export class SortableData {
-  elements: [] | undefined;
+  elements: any[] | undefined;
   sortProperty: string | undefined;
   sortOrder: "asc" | "desc" | undefined;
 }
