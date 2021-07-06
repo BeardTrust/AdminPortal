@@ -3,7 +3,7 @@ import { OnInit, Component, Directive, EventEmitter, Input, Output, QueryList, V
 import { SortableData } from 'src/app/directives/sort/sort.directive';
 import { HttpService } from '../../shared/services/http.service';
 
-function includesCaseInsensitive(a: string, b: string): boolean {
+export function includesCaseInsensitive(a: string, b: string): boolean {
   return a.toLowerCase().includes(b.toLowerCase());
 }
 

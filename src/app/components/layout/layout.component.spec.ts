@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterModule } from '@angular/router';
 
 import { LayoutComponent } from './layout.component';
 
@@ -8,7 +9,8 @@ describe('LayoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LayoutComponent ]
+      declarations: [ LayoutComponent ],
+      imports: [ RouterModule.forRoot([]) ]
     })
     .compileComponents();
   });
@@ -21,5 +23,10 @@ describe('LayoutComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should have Home button', () => {
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('#home').textContent).toContain('Home');
   });
 });

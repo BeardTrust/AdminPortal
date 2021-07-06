@@ -27,7 +27,7 @@ export class SortDirective {
   @HostListener("click")
   sortData() {
 
-    if (this.appSort == null) {
+    if (this.appSort == null || this.appSort.elements == undefined) {
       return;
     }
 
@@ -35,10 +35,10 @@ export class SortDirective {
     const property = elem.getAttribute("data-name");
 
     if (this.appSort.sortOrder === 'asc' && this.appSort.sortProperty === property) {
-      this.appSort.elements?.sort((a, b) => compare(b[property], a[property]));
+      this.appSort.elements.sort((a, b) => compare(b[property], a[property]));
       this.appSort.sortOrder = 'desc';
     } else {
-      this.appSort.elements?.sort((a, b) => compare(a[property], b[property]));
+      this.appSort.elements.sort((a, b) => compare(a[property], b[property]));
       this.appSort.sortProperty = property;
       this.appSort.sortOrder = 'asc';
     }
