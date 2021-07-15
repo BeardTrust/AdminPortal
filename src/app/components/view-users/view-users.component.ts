@@ -17,6 +17,9 @@ export class ViewUsersComponent implements OnInit {
   @Input() search!: string;
   @Output() searchChange = new EventEmitter<string>();
 
+  @Input() resultsPerPage: number = 50;
+  @Output() resultsPerPageChange = new EventEmitter<number>();
+
   sortData: SortableData = {
     elements: undefined,
     sortProperty: undefined,
