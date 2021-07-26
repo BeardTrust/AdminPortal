@@ -1,11 +1,6 @@
-import { ElementSchemaRegistry } from '@angular/compiler';
-import { OnInit, Component, Directive, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
-import { SortableData } from 'src/app/directives/sort/sort.directive';
+import { OnInit, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { HttpService } from '../../shared/services/http.service';
-
-export function includesCaseInsensitive(a: string, b: string): boolean {
-  return a.toLowerCase().includes(b.toLowerCase());
-}
 
 @Component({
   selector: 'app-view-users',
@@ -17,39 +12,80 @@ export class ViewUsersComponent implements OnInit {
   @Input() search!: string;
   @Output() searchChange = new EventEmitter<string>();
 
+  @Input() pageNumber: number = 0;
+  @Output() pageNumberChange = new EventEmitter<number>();
+
   @Input() resultsPerPage: number = 50;
   @Output() resultsPerPageChange = new EventEmitter<number>();
 
-  sortData: SortableData = {
-    elements: undefined,
-    sortProperty: undefined,
-    sortOrder: undefined
-  };
+  @Input() sort!: string;
+  @Output() sortChange = new EventEmitter<number>();
+
+  @Input() asc!: boolean;
+  @Output() ascChange = new EventEmitter<number>();
+
+  subscription?: Subscription;
+
+  data: {
+    status: "notYetPending" | "pending" | "success" | "error",
+    content: any[],
+    totalElements: number,
+    totalPages: number
+  } = { status: "notYetPending", content: [], totalElements: 0, totalPages: 0 };
+
+  fields = [
+    { name: "firstName", displayName: "First Name", class: "col-2"},
+    { name: "lastName", displayName: "Last Name", class: "col-2"},
+    { name: "username", displayName: "Username", class: "col-2"},
+    { name: "email", displayName: "Email", class: "col-3"},
+    { name: "phone", displayName: "Phone", class: "col-3"}
+  ];
 
   constructor(private httpService: HttpService) { }
 
   ngOnInit(): void {
-    this.getAllUsers();
+    this.update();
   }
 
-  getAllUsers() {
-    this.httpService.getUsers().subscribe((res) => {
-      this.sortData.elements = <[]>res;
+  setPage(pageNumber: number){
+    this.pageNumber = pageNumber;
+    this.update();
+  }
+
+  setResultsPerPage(resultsPerPage: number){
+    this.pageNumber = 0;
+    this.resultsPerPage = resultsPerPage;
+    this.update();
+  }
+
+  setSort(property: string){
+    if (this.asc && this.sort === property) {
+      this.asc = false;
+    } else {
+      this.sort = property;
+      this.asc = true;
+    }
+    this.update();
+  }
+
+  setSearch(search: string){
+    this.search = search;
+    this.update();
+  }
+
+  update(){
+    this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
+    this.subscription?.unsubscribe();
+    this.subscription = this.httpService.getUsers(this.pageNumber, this.resultsPerPage, this.sort, this.asc, this.search).subscribe((res) => {
+      this.data = {
+        status: "success",
+        content: (<any>res).content,
+        totalElements: (<any>res).totalElements,
+        totalPages: (<any>res).totalPages
+      };
+    }, (err) => {
+      console.error("Failed to retrieve users", err);
+      this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
     })
   }
-
-  filteredUsers(): any[] {
-    if (!this.sortData.elements) {
-      return [];
-    } else if (!this.search) {
-      return this.sortData.elements;
-    } else {
-      return this.sortData.elements.filter(e => includesCaseInsensitive(e.lastName, this.search) || includesCaseInsensitive(e.firstName, this.search));
-    }
-  }
-
-  usersNotYetLoaded(): boolean {
-    return this.sortData.elements === undefined;
-  }
 }
-

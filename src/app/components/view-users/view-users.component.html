@@ -7,13 +7,13 @@
         <div class="col-md-3 mt-auto">
             <div class="form-group">
                 <label for="search">Search</label>
-                <input type="text" class="form-control" [(ngModel)]="search" id="search">
+                <input type="text" class="form-control" [ngModel]="search" (ngModelChange)="setSearch($event)">
             </div>
         </div>
         <div class="col-md-2 mt-auto">
             <div class="form-group">
                 <label for="resultsPerPage">Results Per Page</label>
-                <select class="form-control" [(ngModel)]="resultsPerPage" id="resultsPerPage">
+                <select class="form-control" [ngModel]="resultsPerPage" (ngModelChange)="setResultsPerPage($event)">
                     <option>50</option>
                     <option>100</option>
                     <option>250</option>
@@ -25,47 +25,44 @@
     <table class="table">
         <thead>
             <tr class="d-flex">
-                <th scope="col" [appSort]="sortData" data-name="lastName" class="col-6">
-                    Last Name
-                    <span *ngIf="sortData.sortProperty === 'lastName'">
-                        {{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}
-                    </span>
-                </th>
-                <th scope="col" [appSort]="sortData" data-name="firstName" class="col-6">
-                    First Name
-                    <span *ngIf="sortData.sortProperty === 'firstName'">
-                        {{(sortData.sortOrder === 'asc') ? ' ↑' : ' ↓'}}
+                <th *ngFor="let field of fields" scope="col" [class]="field.class" (click)="setSort(field.name)">
+                    {{field.displayName}}
+                    <span *ngIf="sort === field.name">
+                        {{asc ? ' ↑' : ' ↓'}}
                     </span>
                 </th>
             </tr>
         </thead>
         <tbody>
-            <tr class="d-flex" *ngFor="let r of filteredUsers()">
-                <td class="col-6">{{r.lastName}}</td>
-                <td class="col-6">{{r.firstName}}</td>
+            <tr class="d-flex" *ngFor="let r of data.content">
+                <td *ngFor="let field of fields" [class]="field.class">{{r[field.name]}}</td>
             </tr>
         </tbody>
     </table>
 
-    <div *ngIf="!usersNotYetLoaded()">
+    <div *ngIf="data.status === 'success'">
 
-        <p class="text-muted">Showing 1375637568 of 787834 results</p>
+        <p class="text-muted">Showing {{data.content.length}} of {{data.totalElements}} {{(data.totalElements == 1) ? "result" : "results"}}</p>
         
         <nav aria-label="Page navigation">
             <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">First</a></li>
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                <li class="page-item"><a class="page-link" href="#">Last</a></li>
+                <li class="page-item" [ngClass]="{'disabled': pageNumber === 0}"><a class="page-link" href="#" onclick="event.preventDefault()" (click)="setPage(0)">First</a></li>
+                <li class="page-item" [ngClass]="{'disabled': pageNumber === 0}"><a class="page-link" href="#" onclick="event.preventDefault()" (click)="setPage(pageNumber-1)">Previous</a></li>
+                <li *ngFor="let _ of [].constructor(data.totalPages); let availablePage = index" class="page-item" [ngClass]="{'active': availablePage === pageNumber}">
+                    <a class="page-link" href="#" onclick="event.preventDefault()" (click)="setPage(availablePage)">{{availablePage}}</a>
+                </li>
+                <li class="page-item" [ngClass]="{'disabled': pageNumber === data.totalPages-1}"><a class="page-link" href="#" onclick="event.preventDefault()" (click)="setPage(pageNumber+1)">Next</a></li>
+                <li class="page-item" [ngClass]="{'disabled': pageNumber === data.totalPages-1}"><a class="page-link" href="#" onclick="event.preventDefault()" (click)="setPage(data.totalPages-1)">Last</a></li>
             </ul>
         </nav>
     </div>
 
 </div>
 
-<div *ngIf="usersNotYetLoaded()" class="d-flex justify-content-center">
-    <div aria_label="Loading..." class="spinner-border" role="status"></div>
+<div *ngIf="data.status === 'pending'" class="d-flex justify-content-center">
+    <div aria_label="Loading..." class="spinner-border text-primary" role="status"></div>
+</div>
+
+<div *ngIf="data.status === 'error'" class="alert alert-danger fade show">
+    <strong>Error:</strong> Failed to retrieve users.
 </div>

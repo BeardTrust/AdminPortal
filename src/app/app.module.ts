@@ -8,7 +8,6 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeComponent } from './components/home/home.component';
-import { SortDirective } from './directives/sort/sort.directive';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from './shared/services/http.service';
 
@@ -17,8 +16,7 @@ import { HttpService } from './shared/services/http.service';
     AppComponent,
     ViewUsersComponent,
     LayoutComponent,
-    HomeComponent,
-    SortDirective
+    HomeComponent
   ],
   imports: [
     BrowserModule,

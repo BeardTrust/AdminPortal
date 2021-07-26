@@ -7,9 +7,23 @@ import { Injectable } from '@angular/core';
 
 export class HttpService {
 
-  constructor(private http: HttpClient) {}
+  //when admin login is implemented, make this not a constant
+  httpHeaders: HttpHeaders = new HttpHeaders({
+    Authorization: "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1YTI5YjgzYy0wM2Y4LTQ5NTctOTFhYS02ZTI4ZTA0OTRjNzMiLCJleHAiOjE2MjgxODQ2ODB9.isB_8_o2ZIXO6JGLr5gyIYJnbE5Ncik3LC8cpZd-l3dZG7Eni61Ksrj0gMc_vKFLtJ7twqrxNU60dYGltANerQ"
+  });
 
-  getUsers(){
-    return this.http.get("https://run.mocky.io/v3/3320d31a-8849-4792-9bfb-ab1a668ecb45");
+  constructor(private http: HttpClient) { }
+
+  getUsers(page: number, size: number, sort?: string, asc?: boolean, search?: string) {
+
+    let query = `http://localhost:9001/admin/users?page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
+    if (sort !== undefined) {
+      query += `&sort=${encodeURIComponent(sort)}&asc=${encodeURIComponent(!!asc)}`;
+    }
+    if (search !== undefined) {
+      query += `&search=${encodeURIComponent(search)}`;
+    }
+
+    return this.http.get(query, { headers: this.httpHeaders });
   }
 }
