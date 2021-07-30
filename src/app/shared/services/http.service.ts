@@ -26,4 +26,9 @@ export class HttpService {
 
     return this.http.get(query, { headers: this.httpHeaders });
   }
+
+  uploadCsv(csv: string){
+    let query = `https://run.mocky.io/v3/e413c4bc-0668-4ebb-80b7-c5d9964d03d3`;
+    return this.http.post(query, csv, { headers: this.httpHeaders });
+  }
 }

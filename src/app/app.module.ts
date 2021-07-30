@@ -10,13 +10,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeComponent } from './components/home/home.component';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from './shared/services/http.service';
+import { UploadCsvComponent } from './components/upload-csv/upload-csv.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ViewUsersComponent,
     LayoutComponent,
-    HomeComponent
+    HomeComponent,
+    UploadCsvComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,55 @@
+<div class="container-fluid">
+
+    <h1 class="display-4 mb-3">Upload CSV</h1>
+
+    <input type="file" id="file" (change)="setFile($event)" style="display:none">
+
+    <form class="form-inline">
+        <div class="input-group mr-3 mb-3">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button"
+                    onclick="document.getElementById('file').click()">Choose...</button>
+            </div>
+            <div class="input-group-append">
+                <span *ngIf="file" class="input-group-text" id="">{{file?.name}}</span>
+                <span *ngIf="!file" class="input-group-text" id=""><i>No file selected.</i></span>
+            </div>
+        </div>
+        <button *ngIf="fileContents.status === 'success' || fileContents.status === 'warning'" class="btn btn-primary mr-3 mb-3" type="button" (click)="uploadCsv()">Upload</button>
+        <div *ngIf="fileUploadStatus === 'pending'" aria_label="Loading..." class="spinner-border text-primary mb-3" role="status"></div>
+    </form>
+
+    <div *ngIf="fileUploadStatus === 'error'" class="alert alert-danger fade show">
+        <strong>Error:</strong> Failed to upload file.
+    </div>
+
+    <div *ngIf="fileUploadStatus === 'success'" class="alert alert-success fade show">
+        File uploaded.
+    </div>
+
+    <div *ngIf="fileContents.status === 'error'" class="alert alert-danger fade show">
+        <strong>Error:</strong> Failed to load file.
+    </div>
+
+    <div *ngIf="file !== undefined && file.type !== 'text/csv'" class="alert alert-warning fade show">
+        <strong>Warning:</strong> This file doesn't have the <code>.csv</code> file extension. Are you sure it's a CSV?
+    </div>
+
+    <div *ngIf="fileContents.status === 'warning'" class="alert alert-warning fade show">
+        <strong>Warning:</strong> This file's contents don't appear to be valid CSV.
+    </div>
+
+    <div *ngIf="fileContents.status === 'pending'" class="d-flex justify-content-center">
+        <div aria_label="Loading..." class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <span *ngIf="fileContents.status === 'success' || fileContents.status === 'warning'" class="card">
+        <div class="card-header">
+            File Contents
+        </div>
+        <div class="card-body">
+            <pre class="m-0"><code>{{fileContents.content}}</code></pre>
+        </div>
+    </span>
+
+</div>
