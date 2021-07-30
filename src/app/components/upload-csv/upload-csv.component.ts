@@ -33,17 +33,16 @@ export class UploadCsvComponent implements OnInit {
     this.fileReadSubscription?.unsubscribe();
     this.fileReadSubscription = undefined;
 
-    this.fileContents = { status: "pending" };
-
     this.file = (<any>event).target.files[0];
 
-    console.log(this.file);
-
     if (this.file) {
+      this.fileContents = { status: "pending" };
       const fileReader = new FileReader();
       const fileReaderObservable = fromEvent(fileReader, 'load');
       fileReaderObservable.subscribe(() => this.setFileContents(fileReader.result?.toString()), this.setFileContents);
       fileReader.readAsText(this.file);
+    } else {
+      this.fileContents = { status: "notYetPending" };
     }
   }
 
@@ -65,7 +64,7 @@ export class UploadCsvComponent implements OnInit {
 
     this.fileUploadStatus = "pending";
     this.fileUploadSubscription?.unsubscribe();
-    
+
     this.fileUploadSubscription = this.httpService.uploadCsv(this.fileContents.content).subscribe(() => {
       this.fileUploadStatus = "success";
     }, (err) => {

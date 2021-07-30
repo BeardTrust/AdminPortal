@@ -31,4 +31,15 @@ describe('HttpService', () => {
     srv.getUsers(0, 50);
     expect(calledWithQuery).toBe(`http://localhost:9001/admin/users?page=0&size=50`);
   });
+
+  it('uploads csv', () => {
+
+    let calledWithBody: any;
+
+    let http = { post: (_query: any, body: any, _headers: any) => { calledWithBody = body; } };
+    var srv = new HttpService(<any>http);
+
+    srv.uploadCsv("test");
+    expect(calledWithBody).toBe("test");
+  });
 });
