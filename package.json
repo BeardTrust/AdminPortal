@@ -38,25 +38,6 @@
     "test-watch": "jest --watch",
     "eject": "ng eject"
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "**/*.{js,jsx}",
-      "!coverage/**",
-      "!node_modules/**",
-      "!src/index.js",
-      "!src/setupTests.js",
-      "!public/**",
-      "!build/**"
-    ],
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "json",
-      "text",
-      "clover",
-      "cobertura"
-    ]
-  },
   "eslintConfig": {
     "extends": [
       "react-app",
