@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  baseUrl: 'http://localhost:9001/dev_variable'
+  baseUrl: 'http://localhost:9001',
+  authEndpoint: '/users/login'
 };
 
 /*
