@@ -28,6 +28,7 @@ export class LoanComponent implements OnInit {
   curLoanApr!: number[];
   curLoanList!: number[];
   loanTypes: LoanType[] = new Array();
+  sortBy: string[] = [];
   updateLoanForm!: FormGroup;
   modalRef!: NgbModalRef;
   errorMessage: any;
@@ -40,19 +41,38 @@ export class LoanComponent implements OnInit {
   activeLoan!: Loan;
   activeLoanType!: LoanType;
   width!: number;
-
-
-  @Input() search!: string;
-  @Output() searchChange = new EventEmitter<string>();
-
-  @Input() sort!: string;
-  @Output() sortChange = new EventEmitter<number>();
-
-  @Input() asc!: boolean;
-  @Output() ascChange = new EventEmitter<number>();
-
-  @Input() dir!: string;
-  @Output() dirChange = new EventEmitter<number>();
+  sortByUserId: boolean = false;
+  userIdOrder: string = 'desc'
+  sortById: boolean = false;
+  idOrder: string = 'desc';
+  sortByBalance: boolean = false;
+  balanceOrder: string = 'desc';
+  sortByPayment: boolean = false;
+  paymentOrder: string = 'desc';
+  sortByCreateDate: boolean = false;
+  createDateOrder: string = 'desc';
+  sortByNextPay: boolean = false;
+  nextPayOrder: string = 'desc';
+  sortByPrevPay: boolean = false;
+  prevPayOrder: string = 'desc';
+  sortByType: boolean = false;
+  typeOrder: string = 'desc';
+  sortByMinMonthFee: boolean = false;
+  minMonthFeeOrder: string = 'desc';
+  sortByPrincipal: boolean = false;
+  principalOrder: string = 'desc';
+  sortByLateFee: boolean = false;
+  lateFeeOrder: string = 'desc';
+  sortByMonthsRemaining: boolean = false;
+  monthRemainingOrder: string = 'desc';
+  sortByIsPaid: boolean = false;
+  isPaidOrder: string = 'desc';
+  sortByAPR: boolean = false;
+  aprOrder: string = 'desc';
+  sortByCurrentDue: boolean = false;
+  currentDueOrder: string = 'desc';
+  predicate: string = '?pageNum=0&&pageSize=5';
+  searchCriteria: string = '';
 
   data: {
     status: string,
@@ -98,6 +118,125 @@ export class LoanComponent implements OnInit {
   private onResize() {
     this.width = window.innerWidth;
     console.log('resized to: ' + this.width)
+  }
+
+  addToSortBy(field: string) {
+    console.log('add to sort by: ', field)
+    if(field === 'Id'){
+      this.sortById = true;
+      this.idOrder = this.idOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'balance') {
+      this.sortByBalance = true;
+      this.balanceOrder = this.balanceOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'createDate'){
+      this.sortByCreateDate = true;
+      this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'userId'){
+      this.sortByUserId = true;
+      this.userIdOrder = this.userIdOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'createDate'){
+      this.sortByCreateDate = true;
+      this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'apr'){
+      this.sortByAPR= true;
+      this.aprOrder = this.aprOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'type'){
+      this.sortByType = true;
+      this.typeOrder = this.typeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'isActive'){
+      this.sortByIsPaid = true;
+      this.isPaidOrder = this.isPaidOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'isPaid'){
+      this.sortByIsPaid = true;
+      this.isPaidOrder = this.isPaidOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'minMonthFee'){
+      this.sortByMinMonthFee = true;
+      this.minMonthFeeOrder = this.minMonthFeeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'monthsRemaining'){
+      this.sortByMonthsRemaining = true;
+      this.monthRemainingOrder = this.monthRemainingOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'currentDue'){
+      this.sortByCurrentDue = true;
+      this.currentDueOrder = this.currentDueOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'lateFee'){
+      this.sortByLateFee = true;
+      this.lateFeeOrder = this.lateFeeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'principal'){
+      this.sortByPrincipal = true;
+      this.principalOrder = this.principalOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'nextDue'){
+      this.sortByNextPay = true;
+      this.nextPayOrder = this.nextPayOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'prevDue'){
+      this.sortByPrevPay = true;
+      this.prevPayOrder = this.prevPayOrder === 'desc' ? 'asc' : 'desc';
+    }
+
+    this.updatePage();
+  }
+
+  private assembleQueryParams() {
+    this.sortBy = [];
+
+    if(this.sortById){
+      this.sortBy.push('id,' + this.idOrder);
+    }
+    if(this.sortByBalance){
+      this.sortBy.push('balance_dollars,' + this.balanceOrder);
+    }
+    if(this.sortByCreateDate){
+      this.sortBy.push('createDate,' + this.createDateOrder);
+    }
+    if(this.sortByUserId){
+      this.sortBy.push('user_userId,' + this.userIdOrder);
+    }
+    if(this.sortByAPR){
+      this.sortBy.push('apr,' + this.aprOrder);
+    }
+    if(this.sortByType){
+      this.sortBy.push('type_name,' + this.typeOrder);
+    }
+    if(this.sortByIsPaid){
+      this.sortBy.push('payment_isPaid,' + this.isPaidOrder);
+    }
+    if(this.sortByBalance){
+      this.sortBy.push('balance_dollars,' + this.balanceOrder);
+    }
+    if(this.sortByPrincipal){
+      this.sortBy.push('principal_dollars,' + this.principalOrder);
+    }
+    if(this.sortByLateFee){
+      this.sortBy.push('lateFee_dollars,' + this.lateFeeOrder);
+    }
+    if(this.sortByCurrentDue){
+      this.sortBy.push('payment_due_dollars,' + this.nextPayOrder);
+    }
+    if(this.sortByNextPay){
+      this.sortBy.push('payment_nextDue,' + this.nextPayOrder);
+    }
+    if(this.sortByPrevPay){
+      this.sortBy.push('payment_prevDue,' + this.prevPayOrder);
+    }
+    if(this.sortByType){
+      this.sortBy.push('loanType_typeName,' + this.typeOrder);
+    }
+  }
+
+  private assemblePredicate(){
+    this.assembleQueryParams()
+
+    this.predicate = "?pageNum=" + this.pageIndex + "&&pageSize=" + this.pageSize;
+    this.predicate += this.sortBy.length > 0 ? '&&sortBy=' + this.sortBy : '';
+    this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
+  }
+
+  updatePage(){
+    this.loans = [];
+
+    this.assemblePredicate();
+
+    this.update();
+    this.initializeForms();
   }
 
   onChangePage(pe: PageEvent) {
@@ -149,43 +288,37 @@ export class LoanComponent implements OnInit {
     return l;
   }
 
-  setSort(property: string) {
-    if (this.asc && this.sort === property) {
-      this.asc = false;
-      this.dir = "desc";
-      this.update();
-    } else {
-      console.log('asc true')
-      if (property !== 'firstName' && property !== 'lastName') {
-        this.sort = property;
-        this.asc = true;
-        this.dir = "asc";
-        this.update();
-      }
-      else {
-        // alert('Cannot sort by name.')
-      }
-    }
-  }
-
   setSearch(search: string) {
-    this.search = search;
+    this.searchCriteria = search;
   }
 
   refresh() {
-    this.search = "";
-    this.sort = 'Id';
-    this.dir = 'asc';
+    this.sortByUserId = false;
+    this.sortById = false;
+    this.sortByType = false;
+    this.sortByAPR = false;
+    this.sortByBalance = false;
+    this.sortByMinMonthFee = false;
+    this.sortByCurrentDue = false;
+    this.sortByLateFee = false;
+    this.sortByPrincipal = false;
+    this.sortByMonthsRemaining = false;
+    this.sortByCreateDate = false;
+    this.sortByNextPay = false;
+    this.sortByPrevPay = false;
+    this.sortByIsPaid = false;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
+    this.predicate = '?pageNum=0&&pageSize=5';
+    this.searchCriteria = '';
     this.update();
   }
 
   update() {
     this.loans = [];
     this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
-    this.httpService.getLoans(this.pageIndex, this.pageSize, this.sort, this.dir, this.search)
+    this.httpService.getAll("http://localhost:9001/loans" + this.predicate)
       .subscribe((res) => {
         console.log(res);
         let arr: any;
