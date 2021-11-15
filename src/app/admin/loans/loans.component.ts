@@ -121,7 +121,7 @@ export class LoanComponent implements OnInit {
       let loan: any;
       loan = res;
       this.activeLoan = loan;
-      console.log(loan.balance); 
+      console.log(loan.balance);
       this.updateLoanForm.controls['balance'].setValue(loan.balance.dollars + (loan.balance.cents / 100));
       this.updateLoanForm.controls['minDue'].setValue(loan.minDue.dollars + (loan.minDue.cents / 100));
       this.updateLoanForm.controls['principal'].setValue(loan.principal.dollars + (loan.principal.cents / 100));
@@ -297,7 +297,7 @@ export class LoanComponent implements OnInit {
         this.updateLoanForm.controls['apr'].value,
       )
       console.log('form desc: ', this.updateLoanForm.controls['description'].value)
-      t.$id = loanType.id
+      t.$id = loanType.$id
       console.log('loantype made: ', t)
       uuid = loan.$id
       let u = new Loan(
