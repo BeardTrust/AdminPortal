@@ -93,15 +93,15 @@
                 <td *ngIf="width > 550">{{ a.$loanType.typeName }}</td>
                 <td *ngIf="width > 400">{{ a.$loanType.apr }}%</td>
                 <td *ngIf="width > 900">{{ a.$balance }}</td>
-                <td *ngIf="width > 950">{{ a.$minMonthFee }}</td>
-                <td *ngIf="width > 1050">{{ a.$minDue }}</td>
-                <td *ngIf="width > 850">{{ a.$lateFee }}</td>
+                <td *ngIf="width > 950">{{ a.$payment.minMonthFee }}</td>
+                <td *ngIf="width > 1050">{{ a.$payment.minDue.isNegative === true ? '-' : '' }}${{ a.$payment.minDue.dollars }}.{{ a.$payment.minDue.cents }}</td>
+                <td *ngIf="width > 850">{{ a.$payment.lateFee.isNegative === true ? '-' : '' }}${{ a.$payment.lateFee.dollars }}.{{ a.$payment.lateFee.cents }}</td>
                 <td *ngIf="width > 500">{{ a.$principal }}</td>
                 <td *ngIf="width > 400">{{ a.$loanType.numMonths }}</td>
                 <td *ngIf="width > 900">{{ a.$createDate }}</td>
-                <td *ngIf="width > 950">{{ a.$nextDueDate }}</td>
-                <td *ngIf="width > 1050">{{ a.$previousDueDate }}</td>
-                <td *ngIf="width > 850">{{ a.$hasPaid }}</td>
+                <td *ngIf="width > 950">{{ a.$payment.nextDueDate }}</td>
+                <td *ngIf="width > 1050">{{ a.$payment.previousDueDate }}</td>
+                <td *ngIf="width > 850">{{ a.$payment.hasPaid }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary" (click)="open(updateLoanModal, a)">Edit</button>
                 </td>

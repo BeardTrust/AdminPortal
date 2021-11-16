@@ -1,43 +1,43 @@
 import { CurrencyValue } from "./currencyvalue.model";
 
 export class Payment {
-    private id: String;
-    private minDue: CurrencyValue;
-    private lateFee: CurrencyValue;
-    private nextDueDate: Date;
-    private previousDueDate: Date;
-    private hasPaid: boolean;
-    private minMonthFee: String;
+    private _id: String;
+    private _minDue: CurrencyValue;
+    private _lateFee: CurrencyValue;
+    private _nextDueDate: Date;
+    private _previousDueDate: Date;
+    private _hasPaid: boolean;
+    private _minMonthFee: String;
 
     constructor($id: String, $minDue: CurrencyValue, $lateFee: CurrencyValue, $nextDueDate: Date, $previousDueDate: Date,
         $hasPaid: boolean, $minMonthFee: String) {
-        this.id = $id;
-        this.minDue = $minDue;
-        this.lateFee = $lateFee;
-        this.nextDueDate = $nextDueDate;
-        this.previousDueDate = $previousDueDate;
-        this.hasPaid = $hasPaid;
-        this.minMonthFee = $minMonthFee;
+        this._id = $id;
+        this._minDue = $minDue;
+        this._lateFee = $lateFee;
+        this._nextDueDate = $nextDueDate;
+        this._previousDueDate = $previousDueDate;
+        this._hasPaid = $hasPaid;
+        this._minMonthFee = $minMonthFee;
     }
-    public get $id(): String {
-        return this.id;
+    public get id(): String {
+        return this._id;
     }
-    public get $minDue(): CurrencyValue {
-        return this.minDue;
+    public get minDue(): CurrencyValue {
+        return this._minDue;
     }
-    public get $lateFee(): CurrencyValue {
-        return this.lateFee;
+    public get lateFee(): CurrencyValue {
+        return this._lateFee;
     }
-    public get $nextDueDate(): Date {
-        return this.nextDueDate;
+    public get nextDueDate(): Date {
+        return this._nextDueDate;
     }
-    public get $previousDueDate(): Date {
-        return this.previousDueDate;
+    public get previousDueDate(): Date {
+        return this._previousDueDate;
     }
-    public get $hasPaid(): boolean {
-        return this.hasPaid;
+    public get hasPaid(): boolean {
+        return this._hasPaid;
     }
-    public get $minMonthFee(): String {
-        return this.minMonthFee;
+    public get minMonthFee(): String {
+        return this._minMonthFee;
     }
 }

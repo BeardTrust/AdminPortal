@@ -8,6 +8,8 @@ import { PageEvent } from "@angular/material/paginator";
 import { CurrencyValue } from "../../shared/models/currencyvalue.model";
 import { LoanType } from "../../shared/models/loanType.model";
 import { setWrapHostForTest } from "@angular/compiler-cli/src/transformers/compiler_host";
+import { Payment } from "src/app/shared/models/payment.model";
+import { P } from "@angular/cdk/keycodes";
 
 @Component({
   selector: 'app-loans',
@@ -80,23 +82,6 @@ export class LoanComponent implements OnInit {
     totalElements: number,
     totalPages: number
   } = { status: "notYetPending", content: [], totalElements: 0, totalPages: 0 };
-
-  loan = [
-    { name: "user", displayName: "User ID", class: "col-2" },
-    { name: "id", displayName: "Loan ID", class: "col-3" },
-    { name: "loanType.typeName", displayName: "Type", class: "col-2" },
-    { name: "loanType.apr", displayName: "APR", class: "col-2" },
-    { name: "balance", displayName: "Balance", class: "col-2" },
-    { name: "minMonthFee", displayName: "Normal Minimum Due", class: "col-2" },
-    { name: "minDue", displayName: "Current Minimum Due", class: "col-2" },
-    { name: "lateFee", displayName: "Late Fee", class: "col-2" },
-    { name: "principal", displayName: "Principal", class: "col-2" },
-    { name: "loanType.numMonths", displayName: "Month Duration", class: "col-2" },
-    { name: "createDate", displayName: "Date Created", class: "col-2" },
-    { name: "nextDueDate", displayName: "Next Due Date", class: "col-2" },
-    { name: "previousDueDate", displayName: "Previous Due Date", class: "col-2" },
-    { name: "hasPaid", displayName: "Paid Status", class: "col-2" }
-  ];
 
 
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) { }
@@ -197,7 +182,7 @@ export class LoanComponent implements OnInit {
       this.sortBy.push('type_name,' + this.typeOrder);
     }
     if(this.sortByIsPaid){
-      this.sortBy.push('payment_isPaid,' + this.isPaidOrder);
+      this.sortBy.push('payment_hasPaid,' + this.isPaidOrder);
     }
     if(this.sortByBalance){
       this.sortBy.push('balance_dollars,' + this.balanceOrder);
@@ -273,7 +258,7 @@ export class LoanComponent implements OnInit {
           this.activeLoan = loan;
           console.log(loan.balance);
           this.updateLoanForm.controls['balance'].setValue(loan.balance.dollars + (loan.balance.cents / 100));
-          this.updateLoanForm.controls['minDue'].setValue(loan.minDue.dollars + (loan.minDue.cents / 100));
+          this.updateLoanForm.controls['minDue'].setValue(loan.payment.minDue.dollars + (loan.payment.minDue.cents / 100));
           this.updateLoanForm.controls['principal'].setValue(loan.principal.dollars + (loan.principal.cents / 100));
         });
     } else {
@@ -328,8 +313,8 @@ export class LoanComponent implements OnInit {
         console.log('found: ', res)
         for (let obj of arr.content) {
           let u = new Loan(obj.createDate, CurrencyValue.from(obj.balance), CurrencyValue.from(obj.principal),
-            CurrencyValue.from(obj.payment.minDue), CurrencyValue.from(obj.payment.lateFee), obj.id, obj.loanType,
-            obj.payment.nextDueDate, obj.payment.previousDueDate, obj.user, obj.payment.minMonthFee, obj.payment.hasPaid);
+            obj.payment, obj.id, obj.loanType, obj.user);
+            console.log(u)
           this.loans.push(u);
         }
         this.data = {
@@ -432,7 +417,7 @@ export class LoanComponent implements OnInit {
       }
       console.log('loan body made: ', loan)
       console.log('loantype body made: ', loanType)
-      let c: CurrencyValue = this.updateLoanForm.controls['balance'].value;
+      let c = CurrencyValue.valueOf(this.updateLoanForm.controls['balance'].value);
       console.log('balance found: ', c)
       let num = c.getDollars + (c.getCents / 100);
       let c2 = CurrencyValue.valueOf(this.updateLoanForm.controls['principal'].value)
@@ -455,15 +440,18 @@ export class LoanComponent implements OnInit {
         this.updateLoanForm.controls['createDate'].value,
         c,
         c2,
+        new Payment(
+          'Example text',
         new CurrencyValue(false, 0, 0),
         new CurrencyValue(false, 0, 0),
-        uuid,
-        t,
         this.updateLoanForm.controls['nextDueDate'].value,
         this.updateLoanForm.controls['previousDueDate'].value,
-        loan.$user,
-        this.updateLoanForm.controls['minMonthFee'].value,
-        false);
+        false,
+        this.updateLoanForm.controls['minMonthFee'].value
+        ),
+        uuid,
+        t,
+        loan.$user);
       const loanBody = u;
       const typeBody = t;
       this.activeLoanType = typeBody;
@@ -534,27 +522,27 @@ export class LoanComponent implements OnInit {
       console.log('editing existing loan...', u)
       this.activeLoan = u;
       let userId = u.$user.userId
-      console.log('description found: ', u.$loanType.description)
       this.editing = true;
       this.modalHeader = 'Edit Loan';
       this.updateLoanForm = this.fb.group({
         userId: u.$user.userId,
         id: u.$id,
         balance: u.$balance,
-        minDue: u.$minDue,
-        lateFee: u.$lateFee,
+        minDue: CurrencyValue.from(u.$payment.minDue).toString(),
+        lateFee: CurrencyValue.from(u.$payment.lateFee).toString(),
         negative: u.$balance.isNegative,
         typeName: u.$loanType.typeName,
         apr: u.$loanType.apr,
         numMonths: u.$loanType.numMonths,
         description: u.$loanType.description,
         createDate: u.$createDate,
-        nextDueDate: u.$nextDueDate,
-        previousDueDate: u.$previousDueDate,
-        principal: u.$principal.dollars + u.$principal.cents / 100,
-        minMonthFee: u.$minMonthFee,
-        hasPaid: u.$hasPaid
+        nextDueDate: u.$payment.nextDueDate,
+        previousDueDate: u.$payment.previousDueDate,
+        principal: u.$principal,
+        minMonthFee: u.$payment.minMonthFee,
+        hasPaid: u.$payment.hasPaid
       });
+      console.log('form: ', this.updateLoanForm.value)
     } else {
       console.log('creating new loan...')
       this.editing = false;
