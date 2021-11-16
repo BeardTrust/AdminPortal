@@ -101,6 +101,7 @@ export class AccountComponent implements OnInit {
       this.pageSize = pe.pageSize;
     }
     this.accounts = new Array();
+    this.assemblePredicate();
     this.update();
   }
 

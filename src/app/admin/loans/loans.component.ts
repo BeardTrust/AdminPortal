@@ -228,13 +228,13 @@ export class LoanComponent implements OnInit {
     this.predicate = "?pageNum=" + this.pageIndex + "&&pageSize=" + this.pageSize;
     this.predicate += this.sortBy.length > 0 ? '&&sortBy=' + this.sortBy : '';
     this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
+    console.log('assembled predicate: ' + this.predicate)
   }
 
   updatePage(){
     this.loans = [];
 
     this.assemblePredicate();
-
     this.update();
     this.initializeForms();
   }
@@ -245,6 +245,7 @@ export class LoanComponent implements OnInit {
       this.pageIndex = 0;
       this.pageSize = pe.pageSize;
     }
+    this.assemblePredicate();
     this.loans = new Array();
     this.update();
   }
@@ -310,7 +311,7 @@ export class LoanComponent implements OnInit {
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
-    this.predicate = '?pageNum=0&&pageSize=5';
+    this.predicate = '?pageNum=' + this.pageIndex + '&&pageSize=' + this.pageSize;
     this.searchCriteria = '';
     this.update();
   }
@@ -327,8 +328,8 @@ export class LoanComponent implements OnInit {
         console.log('found: ', res)
         for (let obj of arr.content) {
           let u = new Loan(obj.createDate, CurrencyValue.from(obj.balance), CurrencyValue.from(obj.principal),
-            CurrencyValue.from(obj.minDue), CurrencyValue.from(obj.lateFee), obj.id, obj.loanType,
-            obj.nextDueDate, obj.previousDueDate, obj.user, obj.minMonthFee, obj.hasPaid);
+            CurrencyValue.from(obj.payment.minDue), CurrencyValue.from(obj.payment.lateFee), obj.id, obj.loanType,
+            obj.payment.nextDueDate, obj.payment.previousDueDate, obj.user, obj.payment.minMonthFee, obj.payment.hasPaid);
           this.loans.push(u);
         }
         this.data = {

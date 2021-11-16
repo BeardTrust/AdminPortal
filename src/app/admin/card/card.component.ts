@@ -12,6 +12,7 @@ import { HttpService } from '../../shared/services/http.service';
 import {PageEvent} from "@angular/material/paginator";
 import {CurrencyValue} from "../../shared/models/currencyvalue.model";
 import {B} from "@angular/cdk/keycodes";
+import { Payment } from 'src/app/shared/models/payment.model';
 
 
 @Component({
@@ -88,7 +89,8 @@ export class CardComponent implements OnInit {
       arr = response as Card;
       this.totalItems = arr.totalElements;
       for(let obj of arr.content){
-        let c = new Card(obj.id, obj.userId, obj.cardType, new CurrencyValue(obj.isNegative, obj.balance.dollars, obj.balance.cents),
+        console.log(obj)
+        let c = new Card(obj.id, obj.user.userId, obj.cardType, obj.payment, new CurrencyValue(obj.isNegative, obj.balance.dollars, obj.balance.cents),
           obj.cardNumber, obj.interestRate, obj.createDate, obj.nickname, obj.billCycleLength, obj.expireDate);
         console.log(c);
         this.cards.push(c);
@@ -163,6 +165,7 @@ export class CardComponent implements OnInit {
         this.cardForm.controls['cardId'].value,
         this.cardForm.controls['userId'].value,
         this.cardForm.controls['cardType'].value,
+        new Payment('x', new CurrencyValue(false, 0, 0), new CurrencyValue(false, 0, 0), new Date, new Date, false, '0'),
         this.cardForm.controls['balance'].value,
         this.cardForm.controls['cardNumber'].value,
         this.cardForm.controls['interestRate'].value,
@@ -313,6 +316,7 @@ export class CardComponent implements OnInit {
 
   updatePage(){
     this.cards = [];
+    this.onResize();
 
     this.assemblePredicate();
 
