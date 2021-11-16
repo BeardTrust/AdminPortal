@@ -535,9 +535,9 @@ export class LoanComponent implements OnInit {
         apr: u.$loanType.apr,
         numMonths: u.$loanType.numMonths,
         description: u.$loanType.description,
-        createDate: u.$createDate,
-        nextDueDate: u.$payment.nextDueDate,
-        previousDueDate: u.$payment.previousDueDate,
+        createDate: u.$createDate.toString().slice(8, 10) + '/' + u.$createDate.toString().slice(5, 7) + '/' + u.$createDate.toString().slice(0, 4) + ' ' + u.$createDate.toString().slice(11, 20),
+        nextDueDate: u.$payment.nextDueDate.toString().slice(8, 10) + '/' + u.$payment.nextDueDate.toString().slice(5, 7) + '/' + u.$payment.nextDueDate.toString().slice(0, 4) + ' ' + u.$payment.nextDueDate.toString().slice(11, 20),
+        previousDueDate: u.$payment.previousDueDate.toString().slice(8, 10) + '/' + u.$payment.previousDueDate.toString().slice(5, 7) + '/' + u.$payment.previousDueDate.toString().slice(0, 4) + ' ' + u.$payment.previousDueDate.toString().slice(11, 20),
         principal: u.$principal,
         minMonthFee: u.$payment.minMonthFee,
         hasPaid: u.$payment.hasPaid
