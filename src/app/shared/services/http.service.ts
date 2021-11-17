@@ -1,6 +1,8 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {LoanType} from '../models/loanType.model';
+import {environment} from "../../../environments/environment";
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,29 @@ export class HttpService {
         'Accept': 'application/json',
       })
     };
+  }
+
+  login(email: string, password: string): Observable<HttpResponse<any>> {
+    const url: string = `${environment.baseUrl}${environment.authEndpoint}`
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'LR-Type': 'admin'
+    });
+
+    console.log(url);
+
+    return this.http.post(
+      url,
+      {
+        email,
+        password
+      },
+      {
+        observe: "response",
+        headers: headers
+      });
   }
 
   creditCheck(url: string, body: LoanType) {
@@ -99,7 +124,7 @@ export class HttpService {
   }
 
   getUsers(page: number, size: number, sort?: string, asc?: boolean, search?: string) {
-    let query = `http://localhost:9001/admin/users?page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
+    let query = `${environment.baseUrl}${environment.usersEndpoint}?page=${encodeURIComponent(page)}&size=${encodeURIComponent(size)}`;
     if (sort !== undefined) {
       query += `&sort=${encodeURIComponent(sort)}&asc=${encodeURIComponent(!!asc)}`;
     }

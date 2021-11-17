@@ -10,7 +10,7 @@ import { AdminComponent } from './admin/admin.component';
 import { UserComponent } from './admin/user/user.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { AuthComponent } from './auth/auth.component';
 import { AccountComponent } from './admin/accounts/accounts.component';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -19,6 +19,7 @@ import { LoanComponent } from './admin/loans/loans.component'
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import {MatIconModule} from '@angular/material/icon'
+import {JwtInterceptor} from "./shared/interceptors/http-interceptor";
 
 @NgModule({
   declarations: [
@@ -45,7 +46,7 @@ import {MatIconModule} from '@angular/material/icon'
     BrowserAnimationsModule,
     MatIconModule
   ],
-  providers: [],
+  providers: [{provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

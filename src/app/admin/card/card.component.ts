@@ -23,8 +23,6 @@ export class CardComponent implements OnInit {
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) {
   }
 
-  //constructor(private http: HttpClient, private fb: FormBuilder, private modalService: NgbModal) { }
-
   cards: Card[] = new Array();
   cardtypes: Cardtype[] = new Array();
   cardForm!: FormGroup;
