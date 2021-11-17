@@ -185,7 +185,7 @@ export class LoanComponent implements OnInit {
       this.sortBy.push('principal_dollars,' + this.principalOrder);
     }
     if(this.sortByLateFee){
-      this.sortBy.push('payment_feeDollars,' + this.lateFeeOrder);
+      this.sortBy.push('payment_lateFee_dollars,' + this.lateFeeOrder);
     }
     if(this.sortByCurrentDue){
       this.sortBy.push('payment_minDue_dollars,' + this.currentDueOrder);
