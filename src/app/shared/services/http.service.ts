@@ -1,7 +1,6 @@
-
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { LoanType } from '../models/loanType.model';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {LoanType} from '../models/loanType.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,20 +12,12 @@ export class HttpService {
   constructor(private http: HttpClient) { }
 
   getHeaders() {
-    let token = localStorage.getItem('token');
-    if (token !== null) {
-      token = token;
-    } else {
-      token = "a string!";
-    }
-    const httpOptions = {
+    return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': token
       })
     };
-    return httpOptions;
   }
 
   creditCheck(url: string, body: LoanType) {
@@ -52,7 +43,7 @@ export class HttpService {
       }, err => {
         alert(err);
       }
-    
+
     );
     }
     else {
@@ -64,7 +55,7 @@ export class HttpService {
         }, err => {
           alert(err);
         }
-      
+
       );
     }
     console.log('newId: ', this.newId)
@@ -82,7 +73,7 @@ export class HttpService {
     if (sort !== undefined && dir !== undefined) {
       query += `&sortName=${encodeURIComponent(sort)}&sortDir=${encodeURIComponent(dir)}`;
     }
-    if (search !== undefined) {
+    if (search !== '') {
       query += `&search=${encodeURIComponent(search)}`;
     }
     console.log('Outbound Query: ', query);
@@ -100,7 +91,7 @@ export class HttpService {
     if (sort !== undefined && dir !== undefined) {
       query += `&sortName=${encodeURIComponent(sort)}&sortDir=${encodeURIComponent(dir)}`;
     }
-    if (search !== undefined) {
+    if (search !== '') {
       query += `&search=${encodeURIComponent(search)}`;
     }
     console.log('Outbound Query: ', query);
