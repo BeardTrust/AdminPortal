@@ -98,9 +98,9 @@
                 <td *ngIf="width > 850">{{ a.$payment.lateFee.isNegative === true ? '-' : '' }}${{ a.$payment.lateFee.dollars }}.{{ a.$payment.lateFee.cents }}</td>
                 <td *ngIf="width > 500">{{ a.$principal }}</td>
                 <td *ngIf="width > 400">{{ a.$loanType.numMonths }}</td>
-                <td *ngIf="width > 900">{{ a.$createDate.toString().slice(8, 10) + '/' + a.$createDate.toString().slice(5, 7) + '/' + a.$createDate.toString().slice(0, 4) + ' ' + a.$createDate.toString().slice(11, 20) }}</td>
-                <td *ngIf="width > 950">{{ a.$payment.nextDueDate.toString().slice(8, 10) + '/' + a.$payment.nextDueDate.toString().slice(5, 7) + '/' + a.$payment.nextDueDate.toString().slice(0, 4) + ' ' + a.$payment.nextDueDate.toString().slice(11, 20) }}</td>
-                <td *ngIf="width > 1050">{{ a.$payment.previousDueDate.toString().slice(8, 10) + '/' + a.$payment.previousDueDate.toString().slice(5, 7) + '/' + a.$payment.previousDueDate.toString().slice(0, 4) + ' ' + a.$payment.previousDueDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 900">{{ a.$createDate.toString().slice(5, 7) + '/' + a.$createDate.toString().slice(8, 10) + '/' + a.$createDate.toString().slice(0, 4) + ' ' + a.$createDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 950">{{ a.$payment.nextDueDate.toString().slice(5, 7) + '/' + a.$payment.nextDueDate.toString().slice(8, 10) + '/' + a.$payment.nextDueDate.toString().slice(0, 4) + ' ' + a.$payment.nextDueDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 1050">{{ a.$payment.previousDueDate.toString().slice(5, 7) + '/' + a.$payment.previousDueDate.toString().slice(8, 10) + '/' + a.$payment.previousDueDate.toString().slice(0, 4) + ' ' + a.$payment.previousDueDate.toString().slice(11, 20) }}</td>
                 <td *ngIf="width > 850">{{ a.$payment.hasPaid }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary" (click)="open(updateLoanModal, a)">Edit</button>

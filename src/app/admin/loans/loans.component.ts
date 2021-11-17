@@ -176,34 +176,31 @@ export class LoanComponent implements OnInit {
       this.sortBy.push('user_userId,' + this.userIdOrder);
     }
     if(this.sortByAPR){
-      this.sortBy.push('apr,' + this.aprOrder);
-    }
-    if(this.sortByType){
-      this.sortBy.push('type_name,' + this.typeOrder);
+      this.sortBy.push('loanType_apr,' + this.aprOrder);
     }
     if(this.sortByIsPaid){
       this.sortBy.push('payment_hasPaid,' + this.isPaidOrder);
-    }
-    if(this.sortByBalance){
-      this.sortBy.push('balance_dollars,' + this.balanceOrder);
     }
     if(this.sortByPrincipal){
       this.sortBy.push('principal_dollars,' + this.principalOrder);
     }
     if(this.sortByLateFee){
-      this.sortBy.push('lateFee_dollars,' + this.lateFeeOrder);
+      this.sortBy.push('payment_feeDollars,' + this.lateFeeOrder);
     }
     if(this.sortByCurrentDue){
-      this.sortBy.push('payment_due_dollars,' + this.nextPayOrder);
+      this.sortBy.push('payment_minDue_dollars,' + this.currentDueOrder);
     }
     if(this.sortByNextPay){
-      this.sortBy.push('payment_nextDue,' + this.nextPayOrder);
+      this.sortBy.push('payment_nextDueDate,' + this.nextPayOrder);
     }
     if(this.sortByPrevPay){
-      this.sortBy.push('payment_prevDue,' + this.prevPayOrder);
+      this.sortBy.push('payment_previousDueDate,' + this.prevPayOrder);
     }
     if(this.sortByType){
       this.sortBy.push('loanType_typeName,' + this.typeOrder);
+    }
+    if (this.sortByMonthsRemaining) {
+      this.sortBy.push('loanType_numMonths,' + this.monthRemainingOrder)
     }
   }
 
@@ -535,9 +532,9 @@ export class LoanComponent implements OnInit {
         apr: u.$loanType.apr,
         numMonths: u.$loanType.numMonths,
         description: u.$loanType.description,
-        createDate: u.$createDate.toString().slice(8, 10) + '/' + u.$createDate.toString().slice(5, 7) + '/' + u.$createDate.toString().slice(0, 4) + ' ' + u.$createDate.toString().slice(11, 20),
-        nextDueDate: u.$payment.nextDueDate.toString().slice(8, 10) + '/' + u.$payment.nextDueDate.toString().slice(5, 7) + '/' + u.$payment.nextDueDate.toString().slice(0, 4) + ' ' + u.$payment.nextDueDate.toString().slice(11, 20),
-        previousDueDate: u.$payment.previousDueDate.toString().slice(8, 10) + '/' + u.$payment.previousDueDate.toString().slice(5, 7) + '/' + u.$payment.previousDueDate.toString().slice(0, 4) + ' ' + u.$payment.previousDueDate.toString().slice(11, 20),
+        createDate: u.$createDate.toString().slice(5, 7) + '/' + u.$createDate.toString().slice(8, 10) + '/' + u.$createDate.toString().slice(0, 4) + ' ' + u.$createDate.toString().slice(11, 20),
+        nextDueDate: u.$payment.nextDueDate.toString().slice(5, 7) + '/' + u.$payment.nextDueDate.toString().slice(8, 10) + '/' + u.$payment.nextDueDate.toString().slice(0, 4) + ' ' + u.$payment.nextDueDate.toString().slice(11, 20),
+        previousDueDate: u.$payment.previousDueDate.toString().slice(5, 7) + '/' + u.$payment.previousDueDate.toString().slice(8, 10) + '/' + u.$payment.previousDueDate.toString().slice(0, 4) + ' ' + u.$payment.previousDueDate.toString().slice(11, 20),
         principal: u.$principal,
         minMonthFee: u.$payment.minMonthFee,
         hasPaid: u.$payment.hasPaid
