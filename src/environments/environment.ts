@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:9001',
-  authEndpoint: '/users/login'
+  authEndpoint: '/users/login',
+  usersEndpoint: '/admin/users'
 };
 
 /*

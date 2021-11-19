@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
-import {AuthService} from "../../auth/auth.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-header',

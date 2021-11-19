@@ -3,7 +3,7 @@ import {HttpClientTestingModule, HttpTestingController} from "@angular/common/ht
 import {RouterTestingModule} from "@angular/router/testing";
 import {HTTP_INTERCEPTORS, HttpClient} from "@angular/common/http";
 import {Router} from "@angular/router";
-import {HttpInterceptorService} from "./http-interceptor";
+import {JwtInterceptor} from "./http-interceptor";
 import {environment} from "../../../environments/environment";
 
 describe(`HttpInterceptor`, () => {
@@ -17,7 +17,7 @@ describe(`HttpInterceptor`, () => {
         {provide: Router, useClass: RouterTestingModule},
         {
           provide: HTTP_INTERCEPTORS,
-          useClass: HttpInterceptorService,
+          useClass: JwtInterceptor,
           multi: true,
         },
       ],
