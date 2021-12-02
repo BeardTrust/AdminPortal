@@ -17,6 +17,10 @@ import { environment } from 'src/environments/environment';
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.css']
 })
+/**
+ * The card Component allows admins to view all cards, create new ones, delete existing ones, and update them.
+ * It uses card.component.html to display everything and card.component.css for styling
+ */
 export class CardComponent implements OnInit {
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) {
   }
@@ -66,6 +70,9 @@ export class CardComponent implements OnInit {
     console.log('resized to: ' + this.width)
   }
 
+  /**
+   * This function will reset all search and sort information to default, and calls the list again.
+   */
   refresh() {
     this.predicate = '?page=0&&size=5';
     this.sortByBalance = false;
@@ -79,6 +86,10 @@ export class CardComponent implements OnInit {
     this.loadCards();
   }
 
+  /**
+   * This is the primary function for loading cards from the back end.
+   * It will also set any errors it receives from the back-end
+   */
   loadCards(): any {
     this.httpService
     .getAll(`${environment.baseUrl}${environment.cardsEndpoint}` + this.predicate)
@@ -106,6 +117,10 @@ export class CardComponent implements OnInit {
     })
   }
 
+  /**
+   * This is the primary function for loading card types (cards on offer) from the back end.
+   * It will also set any errors it receives from the back-end
+   */
   loadCardTypes(): any {
     this.httpService
       .getAll(`${environment.baseUrl}${environment.cardTypesEndpoint}/`)
@@ -115,6 +130,16 @@ export class CardComponent implements OnInit {
         for (let obj of arr) {
           let c = new Cardtype(obj.id, obj.typeName, obj.baseInterestRate);
           this.cardtypes.push(c);
+        }
+      }, (err) => {
+        this.errorPresent = true;
+        this.errorCode = err.status;
+        this.errorText = err.statusText;
+        this.errorMessage = err.message;
+        if (this.errorPresent) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
         }
       })
   }
@@ -133,13 +158,32 @@ export class CardComponent implements OnInit {
     })
   }
 
+  /**
+   * This function sends a delete request for cards
+   * It will also sets any errors that it receives
+   * @param id The idea of the card to delete
+   */
   deleteCard(id: String) {
-    this.httpService.deleteById(`${environment.baseUrl}${environment.cardsEndpoint}` + id).subscribe((result) => {
+    this.httpService.deleteById(`${environment.baseUrl}${environment.cardsEndpoint}/` + id).subscribe((result) => {
       this.cards.length = 0;
       this.loadCards();
+    }, (err) => {
+      this.errorPresent = true;
+      this.errorCode = err.status;
+      this.errorText = err.statusText;
+      this.errorMessage = err.message;
+      if (this.errorPresent) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
     })
   }
 
+  /**
+   * This function will save a new card to the database using informatoin found in the cardForm.
+   * It will also set and display any errors encountered.
+   */
   saveCard() {
     if (!this.cardForm.controls['cardId'].value) {
       let c = new CardRegistration(
@@ -178,11 +222,27 @@ export class CardComponent implements OnInit {
         this.cards.length = 0;
         this.loadCards();
         this.initializeForms();
+      }, (err) => {
+        this.errorPresent = true;
+        this.errorCode = err.status;
+        this.errorText = err.statusText;
+        this.errorMessage = err.message;
+        if (this.errorPresent) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        }
       })
     }
 
   }
 
+  /**
+   * This function opens the cardModal for the purposes of making a new card and/or editing an existing one.
+   * 
+   * @param content The cardModal to use
+   * @param c The card being made or edited
+   */
   open(content: any, c: Card | null) {
     this.clearForm();
 
@@ -258,6 +318,12 @@ export class CardComponent implements OnInit {
   get billCycleLength() { return this.cardForm.get('billCycleLength'); }
   get expireDate() { return this.cardForm.get('expireDate'); }
 
+  /**
+   * This function adds sorting fields to the sortBy array by enabling them here
+   * They will be assembled later in the assembleQueryParams function
+   * 
+   * @param field The sorting to add
+   */
   addToSortBy(field: string) {
     if (field === 'cardId') {
       this.sortByCardId = true;
@@ -279,6 +345,9 @@ export class CardComponent implements OnInit {
     this.updatePage();
   }
 
+  /**
+   * This function builds the query aspect of the url predicate out of the enabled fields
+   */
   private assembleQueryParams() {
     this.sortBy = [];
 
@@ -299,6 +368,9 @@ export class CardComponent implements OnInit {
     }
   }
 
+  /**
+   * This function assembles the url predicate out of the state held pageable information
+   */
   private assemblePredicate() {
     this.assembleQueryParams()
 
@@ -312,6 +384,9 @@ export class CardComponent implements OnInit {
 
   }
 
+  /**
+   * This function calls all the important functions in the order they are necessary for loading the card list.
+   */
   updatePage() {
     this.cards = [];
     this.onResize();
