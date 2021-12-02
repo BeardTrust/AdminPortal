@@ -118,7 +118,7 @@
     </div>
     <div class='alert-danger m-5' *ngIf="errorPresent">
         <p>{{errorCode}} ERROR: {{errorText}}</p>
-        <p *ngIf="errorCode === 503">A 503 error indicates a service outage. Please ensure AccountService is running properly</p>
+        <p *ngIf="errorCode === 503">A 503 error indicates a service outage. Please ensure LoanService is running properly</p>
         <p *ngIf="errorCode === 500">A 500 error indicates a server-side issue. It can be caused by any number of things, and should be reported if it persists.</p>
         <p *ngIf="errorCode === 403">A 403 error indicates an authentication issue. You likely just need to sign out and back in.</p>
         <p *ngIf="errorCode === 404">A 404 error indicates a malformed url. This is a likely just a development-level problem, so you need not worry.</p>
