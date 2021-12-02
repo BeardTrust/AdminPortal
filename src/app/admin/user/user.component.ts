@@ -18,6 +18,9 @@ export class UserComponent implements OnInit {
   updateUserForm!: FormGroup;
   modalRef!: NgbModalRef;
   errorMessage: any;
+  errorPresent: boolean = false;
+  errorCode: number = 0;
+  errorText!: any;
   closeResult: any;
   modalHeader!: String;
   createNew!: boolean;
@@ -228,16 +231,14 @@ export class UserComponent implements OnInit {
         totalPages: arr.totalPages
       };
       console.log('data: ', this.data)
-      console.log('data: ', this.data)
       console.log('totalelems: ', arr.totalElements)
     }, (err) => {
-      console.error("Failed to retrieve users", err);
-      console.log('error status: ', err.status)
-      this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
-      if (err.status === 503) {
+      this.errorPresent = true;
+      this.errorCode = err.status;
+      this.errorText = err.statusText;
+      this.errorMessage = err.message;
+      if (this.errorPresent) {
         setTimeout(() => {
-          console.log('sleeping...')
-          window.alert('[503 ERROR: USERSERVICE] \nServers did not respond. They may be down, or your connection may be interrupted. Page will refresh until a connedction can be established')
           window.location.reload();
         }, 5000);
       }

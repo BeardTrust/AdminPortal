@@ -26,6 +26,9 @@ export class AccountComponent implements OnInit {
 
   modalRef!: NgbModalRef;
   errorMessage: any;
+  errorPresent: boolean = false;
+  errorCode: number = 0;
+  errorText!: any;
   closeResult: any;
   modalHeader!: String;
   totalItems: any;
@@ -268,16 +271,15 @@ export class AccountComponent implements OnInit {
           totalPages: arr.totalPages
         };
       }, (err) => {
-        console.error("Failed to retrieve accounts", err);
-        console.log('error status: ', err.status)
-        this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
-        if (err.status === 503) {
-          setTimeout(() => {
-            console.log('sleeping...')
-            window.alert('[503 ERROR: ACCOUNTSERVICE] \nServers did not respond. They may be down, or your connection may be interrupted. Page will refresh until a connedction can be established')
-            window.location.reload();
-          }, 5000);
-        }
+        this.errorPresent = true;
+      this.errorCode = err.status;
+      this.errorText = err.statusText;
+      this.errorMessage = err.message;
+      if (this.errorPresent) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
       })
   }
 
