@@ -2,31 +2,42 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <h1 class="text-center my-3">View All Cards</h1>
   <div class="input-group mb-3">
-    <button type="button" class="btn btn-primary btn-lg me-5" style="background-color:green"
-      (click)="open(cardModal, null)">Create</button>
+    <button type="button" class="btn btn-primary btn-lg" style="background-color:green"
+      (click)="open(cardModal, null)">Create new Card</button>
     <span class="col-xs-1 col-md-4 col-lg-6 col-xl-7"></span>
-    <button type="submit" (click)="refresh()" class="btn btn-outline-secondary btn-small">
-      <mat-icon>refresh</mat-icon>
-    </button>
-    <input type="text" id="searchBar" class="form-control col-sm-2 col-lg-3" [(ngModel)]="searchCriteria"
+    </div>
+    <div class="input-group mb-3">
+      <button type="submit" (click)="refresh()" class="btn btn-outline-secondary btn-small">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    <input type="inpu-group-text" id="searchBar" class="form-control col-sm-2 col-lg-3" [(ngModel)]="searchCriteria"
       (keydown.enter)="search()" placeholder="Search" aria-label="Search" aria-describedby="searchButton">
-    <button class="btn btn-outline-secondary btn-small" type="button" id="searchButton"
+    <button class="btn btn-outline-secondary btn-small" type="input-group" id="searchButton"
       (click)="this.search()">Search</button>
-  </div>
+      </div>
+  
 
   <table class='table table-striped table-hover table-active border border-secondary shadow-lg'>
     <thead>
       <tr>
-        <th scope="col">#</th>
-        <th scope="col" (click)="addToSortBy('cardId')">
+        <th *ngIf="width > 900" scope="col">#</th>
+        <th *ngIf="width > 400" scope="col" (click)="addToSortBy('userId')">
+          User Id
+          {{this.sortByUserId === true ? this.userIdOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+        </th>
+        <th *ngIf="width > 300" scope="col" (click)="addToSortBy('cardId')">
           Card Id
           {{this.sortByCardId === true ? this.cardIdOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
         </th>
-        <th scope="col" (click)="addToSortBy('balance')">
+        <th *ngIf="width > 450" scope="col" (click)="addToSortBy('nickname')">
+          Nickname
+          {{this.sortByNickname === true ? this.nicknameOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+        </th>
+        <th *ngIf="width > 300" scope="col" (click)="addToSortBy('balance')">
           Balance
           {{this.sortByBalance === true ? this.balanceOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
         </th>
-        <th scope="col" (click)="addToSortBy('createDate')">
+        <th *ngIf="width > 950" scope="col" (click)="addToSortBy('createDate')">
           Create Date
           {{this.sortByCreateDate === true ? this.createDateOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
         </th>
@@ -36,10 +47,12 @@
     </thead>
     <tbody>
       <tr *ngFor="let c of cards; let i=index">
-        <td>{{ i+1 }}</td>
-        <td>{{ c.$nickname }}</td>
-        <td>{{ c.$balance.toString() }}</td>
-        <td>{{ c.$createDate }}</td>
+        <td *ngIf="width > 900">{{ i+1 }}</td>
+        <td *ngIf="width > 400">{{ c.$userId }}</td>
+        <td *ngIf="width > 300">{{ c.$cardId }}</td>
+        <td *ngIf="width > 450">{{ c.$nickname }}</td>
+        <td *ngIf="width > 300">{{ c.$balance.toString() }}</td>
+        <td *ngIf="width > 950">{{ c.$createDate }}</td>
         <td><button type="button" class="btn btn-secondary" (click)="open(cardModal, c)">Edit</button></td>
         <td><button type="button" class="btn btn-danger" (click)="deleteCard(c.$cardId)">Delete</button></td>
       </tr>
@@ -50,6 +63,7 @@
       [pageSizeOptions]="[5, 10, 15, 20, 25, 50]" [pageSize]="this.pageSize" [showFirstLastButtons]="true"
       (page)="onChangePage($event)"></mat-paginator>
   </div>
+  <div class='alert-danger m-5' *ngIf="errorPresent">{{errorCode}} ERROR: {{errorText}}</div>
 </div>
 
 <ng-template #cardModal let-c="close" let-d="dismiss">

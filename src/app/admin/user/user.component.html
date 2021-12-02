@@ -8,36 +8,67 @@
         <button type="submit" (click)="refresh()" class="btn btn-outline-secondary btn-small">
             <mat-icon>refresh</mat-icon>
         </button>
-        <input type="text" id="searchBar" class="form-control col-sm-2 col-lg-3" [(ngModel)]="search"
-            (ngModelChange)="setSearch($event)" placeholder="Search" aria-label="Search"
-            aria-describedby="searchButton">
+        <input type="inpu-group-text" id="searchBar" class="form-control col-sm-2 col-lg-3" [(ngModel)]="searchCriteria"
+      (keydown.enter)="search()" placeholder="Search" aria-label="Search" aria-describedby="searchButton">
         <button type="input" class="btn btn-outline-secondary btn-small" (click)="loadUsers()">Search</button>
     </div>
     <table class='table table-striped table-hover table-active border border-secondary shadow-lg'>
         <thead>
             <tr>
-                <th scope="col">#</th>
-                <th *ngFor="let a of userField" scope="col" [class]="a.class" (click)="setSort(a.name)">
+                <th *ngIf="width > 900" scope="col">#</th>
+        <th *ngIf="width > 450" scope="col" (click)="addToSortBy('firstname')">
+          First Name
+          {{this.sortByFirstname === true ? this.firstnameOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+        </th>
+        <th *ngIf="width > 350" scope="col" (click)="addToSortBy('lastname')">
+            Last Name
+            {{this.sortByLastname === true ? this.lastnameOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 300" scope="col" (click)="addToSortBy('id')">
+            User Id
+            {{this.sortByUserId === true ? this.userIdOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 900" scope="col" (click)="addToSortBy('username')">
+            Username
+            {{this.sortByUsername === true ? this.usernameOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 1100" scope="col" (click)="addToSortBy('email')">
+            Email
+            {{this.sortByEmail === true ? this.emailOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 800" scope="col" (click)="addToSortBy('phone')">
+            Phone
+            {{this.sortByPhone === true ? this.phoneOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 900" scope="col" (click)="addToSortBy('dob')">
+            Date of Birth
+            {{this.sortByDateOfBirth === true ? this.dateOfBirthOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+          <th *ngIf="width > 800" scope="col" (click)="addToSortBy('role')">
+            Role
+            {{this.sortByRole === true ? this.roleOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+          </th>
+                <!-- <th *ngFor="let a of userField" scope="col" [class]="a.class" (click)="setSort(a.name)">
                     {{a.displayName}}
                     <span *ngIf="sort === a.name">
                         {{asc ? ' ↑' : ' ↓'}}
                     </span>
-                </th>
+                </th> -->
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let u of users; let i=index">
-                <td>{{ i+1 }}</td>
-                <td>{{ u.$firstName }}</td>
-                <td>{{ u.$lastName }}</td>
-                <td>{{ u.$userId }}</td>
-                <td>{{ u.$username }}</td>
-                <td>{{ u.$email }}</td>
-                <td>{{ u.$phone }}</td>
-                <td>{{ u.$dateOfBirth }}</td>
-                <td>{{ u.$role }}</td>
+                <td *ngIf="width > 900">{{ i+1 }}</td>
+                <td *ngIf="width > 450">{{ u.$firstName }}</td>
+                <td *ngIf="width > 350">{{ u.$lastName }}</td>
+                <td *ngIf="width > 300">{{ u.$userId }}</td>
+                <td *ngIf="width > 900">{{ u.$username }}</td>
+                <td *ngIf="width > 1100">{{ u.$email }}</td>
+                <td *ngIf="width > 800">{{ u.$phone }}</td>
+                <td *ngIf="width > 900">{{ u.$dateOfBirth }}</td>
+                <td *ngIf="width > 800">{{ u.$role }}</td>
                 <td><button type="button" class="btn btn-secondary" (click)="open(updateUserModal, u)">Edit</button>
                 </td>
                 <td><button type="button" class="btn btn-danger" (click)="deleteUser(u.$userId)">Delete</button>

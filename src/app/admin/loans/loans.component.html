@@ -8,41 +8,100 @@
         <button type="submit" (click)="refresh()" class="btn btn-outline-secondary btn-small">
             <mat-icon>refresh</mat-icon>
         </button>
-        <input type="text" class="form-control col-sm-2 col-lg-3" [ngModel]="search" (ngModelChange)="setSearch($event)"
+        <input type="text" class="form-control col-sm-2 col-lg-3" [ngModel]="searchCriteria" (ngModelChange)="setSearch($event)"
             placeholder="Search">
         <button type="input" class="btn btn-outline-secondary btn-small" (click)="update()">Search</button>
     </div>
     <table class="table table-striped table-hover table-active border border-secondary shadow-lg">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                <ng-container *ngIf="width > 1050">
+                    <th scope="col-1">#</th>
+                </ng-container>
+                <th *ngIf="width > 500" (click)="addToSortBy('userId')">
+                    UserId
+                    {{this.sortByUserId === true ? this.userIdOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 300" (click)="addToSortBy('Id')">
+                    Loan Id
+                    {{this.sortById === true ? this.idOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 550" (click)="addToSortBy('type')">
+                    Loan Type
+                    {{this.sortByType === true ? this.typeOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 400" (click)="addToSortBy('apr')">
+                    APR
+                    {{this.sortByAPR === true ? this.aprOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 900" (click)="addToSortBy('balance')">
+                    Balance
+                    {{this.sortByBalance === true ? this.balanceOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 950" (click)="addToSortBy('minMonthFee')">
+                    Minimum Monthly Fee
+                    {{this.sortByMinMonthFee === true ? this.minMonthFeeOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 1050" (click)="addToSortBy('currentDue')">
+                    Current Due
+                    {{this.sortByCurrentDue === true ? this.currentDueOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 850" (click)="addToSortBy('lateFee')">
+                    Late Fee
+                    {{this.sortByLateFee === true ? this.lateFeeOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 500" (click)="addToSortBy('principal')">
+                    Principal
+                    {{this.sortByPrincipal === true ? this.principalOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 400" (click)="addToSortBy('monthsRemaining')">
+                    Months Remaining
+                    {{this.sortByMonthsRemaining === true ? this.monthRemainingOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 900" (click)="addToSortBy('createDate')">
+                    Date Created
+                    {{this.sortByCreateDate === true ? this.createDateOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 950" (click)="addToSortBy('nextDue')">
+                    Next Payment Due
+                    {{this.sortByNextPay === true ? this.nextPayOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 1050" (click)="addToSortBy('prevDue')">
+                    Previous payment Due
+                    {{this.sortByPrevPay === true ? this.prevPayOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <th scope="col-1" *ngIf="width > 1050" (click)="addToSortBy('isPaid')">
+                    Paid Status
+                    {{this.sortByIsPaid === true ? this.isPaidOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                </th>
+                <!-- <th scope="col">#</th>
                 <th *ngFor="let a of loan" scope="col" [class]="a.class" (click)="setSort(a.name)">
                     {{a.displayName}}
                     <span *ngIf="sort === a.name">
                         {{asc ? ' ↑' : ' ↓'}}
                     </span>
-                </th>
+                </th> -->
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let a of loans; let i=index">
-                <td>{{ i+1 }}</td>
-                <td>{{ a.$user.userId }}</td>
-                <td>{{ a.$id }}</td>
-                <td>{{ a.$loanType.typeName }}</td>
-                <td>{{ a.$loanType.apr }}%</td>
-                <td>{{ a.$balance }}</td>
-                <td>{{ a.$minMonthFee }}</td>
-                <td>{{ a.$minDue }}</td>
-                <td>{{ a.$lateFee }}</td>
-                <td>{{ a.$principal }}</td>
-                <td>{{ a.$loanType.numMonths }}</td>
-                <td>{{ a.$createDate }}</td>
-                <td>{{ a.$nextDueDate }}</td>
-                <td>{{ a.$previousDueDate }}</td>
-                <td>{{ a.$hasPaid }}</td>
+                <td *ngIf="width > 1050">{{ i+1 }}</td>
+                <td *ngIf="width > 500">{{ a.$user.userId }}</td>
+                <td *ngIf="width > 300">{{ a.$id }}</td>
+                <td *ngIf="width > 550">{{ a.$loanType.typeName }}</td>
+                <td *ngIf="width > 400">{{ a.$loanType.apr }}%</td>
+                <td *ngIf="width > 900">{{ a.$balance }}</td>
+                <td *ngIf="width > 950">{{ a.$payment.minMonthFee }}</td>
+                <td *ngIf="width > 1050">{{ a.$payment.minDue.isNegative === true ? '-' : '' }}${{ a.$payment.minDue.dollars }}.{{ a.$payment.minDue.cents }}</td>
+                <td *ngIf="width > 850">{{ a.$payment.lateFee.isNegative === true ? '-' : '' }}${{ a.$payment.lateFee.dollars }}.{{ a.$payment.lateFee.cents }}</td>
+                <td *ngIf="width > 500">{{ a.$principal }}</td>
+                <td *ngIf="width > 400">{{ a.$loanType.numMonths }}</td>
+                <td *ngIf="width > 900">{{ a.$createDate.toString().slice(5, 7) + '/' + a.$createDate.toString().slice(8, 10) + '/' + a.$createDate.toString().slice(0, 4) + ' ' + a.$createDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 950">{{ a.$payment.nextDueDate.toString().slice(5, 7) + '/' + a.$payment.nextDueDate.toString().slice(8, 10) + '/' + a.$payment.nextDueDate.toString().slice(0, 4) + ' ' + a.$payment.nextDueDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 1050">{{ a.$payment.previousDueDate.toString().slice(5, 7) + '/' + a.$payment.previousDueDate.toString().slice(8, 10) + '/' + a.$payment.previousDueDate.toString().slice(0, 4) + ' ' + a.$payment.previousDueDate.toString().slice(11, 20) }}</td>
+                <td *ngIf="width > 850">{{ a.$payment.hasPaid }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary" (click)="open(updateLoanModal, a)">Edit</button>
                 </td>
@@ -94,7 +153,8 @@
                         </div>
                         <div *ngIf="editing" class="input-group mb-2">
                             <label for="numMonths" class="input-group-text">Months Remaining: </label>
-                            <input type="text" id="numMonths" formControlName="numMonths" class="form-control" required />
+                            <input type="text" id="numMonths" formControlName="numMonths" class="form-control"
+                                required />
                         </div>
                         <div *ngIf="!editing" class="input-group mb-2">
                             <label for="numMonths" class="input-group-text">Month Duration: </label>

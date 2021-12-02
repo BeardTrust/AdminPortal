@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, HostListener, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators, } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "../../shared/services/http.service";
@@ -7,7 +7,8 @@ import { User } from "../../shared/models/user.model";
 import { PageEvent } from "@angular/material/paginator";
 import { CurrencyValue } from "../../shared/models/currencyvalue.model";
 import { LoanType } from "../../shared/models/loanType.model";
-import { setWrapHostForTest } from "@angular/compiler-cli/src/transformers/compiler_host";
+import { Payment } from "src/app/shared/models/payment.model";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: 'app-loans',
@@ -28,6 +29,7 @@ export class LoanComponent implements OnInit {
   curLoanApr!: number[];
   curLoanList!: number[];
   loanTypes: LoanType[] = new Array();
+  sortBy: string[] = [];
   updateLoanForm!: FormGroup;
   modalRef!: NgbModalRef;
   errorMessage: any;
@@ -39,19 +41,39 @@ export class LoanComponent implements OnInit {
   editing!: boolean;
   activeLoan!: Loan;
   activeLoanType!: LoanType;
-
-
-  @Input() search!: string;
-  @Output() searchChange = new EventEmitter<string>();
-
-  @Input() sort!: string;
-  @Output() sortChange = new EventEmitter<number>();
-
-  @Input() asc!: boolean;
-  @Output() ascChange = new EventEmitter<number>();
-
-  @Input() dir!: string;
-  @Output() dirChange = new EventEmitter<number>();
+  width!: number;
+  sortByUserId: boolean = false;
+  userIdOrder: string = 'desc'
+  sortById: boolean = false;
+  idOrder: string = 'desc';
+  sortByBalance: boolean = false;
+  balanceOrder: string = 'desc';
+  sortByPayment: boolean = false;
+  paymentOrder: string = 'desc';
+  sortByCreateDate: boolean = false;
+  createDateOrder: string = 'desc';
+  sortByNextPay: boolean = false;
+  nextPayOrder: string = 'desc';
+  sortByPrevPay: boolean = false;
+  prevPayOrder: string = 'desc';
+  sortByType: boolean = false;
+  typeOrder: string = 'desc';
+  sortByMinMonthFee: boolean = false;
+  minMonthFeeOrder: string = 'desc';
+  sortByPrincipal: boolean = false;
+  principalOrder: string = 'desc';
+  sortByLateFee: boolean = false;
+  lateFeeOrder: string = 'desc';
+  sortByMonthsRemaining: boolean = false;
+  monthRemainingOrder: string = 'desc';
+  sortByIsPaid: boolean = false;
+  isPaidOrder: string = 'desc';
+  sortByAPR: boolean = false;
+  aprOrder: string = 'desc';
+  sortByCurrentDue: boolean = false;
+  currentDueOrder: string = 'desc';
+  predicate: string = '?pageNum=0&&pageSize=5';
+  searchCriteria: string = '';
 
   data: {
     status: string,
@@ -60,32 +82,140 @@ export class LoanComponent implements OnInit {
     totalPages: number
   } = { status: "notYetPending", content: [], totalElements: 0, totalPages: 0 };
 
-  loan = [
-    { name: "user", displayName: "User ID", class: "col-2" },
-    { name: "id", displayName: "Loan ID", class: "col-3" },
-    { name: "loanType.typeName", displayName: "Type", class: "col-2" },
-    { name: "loanType.apr", displayName: "APR", class: "col-2" },
-    { name: "balance", displayName: "Balance", class: "col-2" },
-    { name: "minMonthFee", displayName: "Normal Minimum Due", class: "col-2" },
-    { name: "minDue", displayName: "Current Minimum Due", class: "col-2" },
-    { name: "lateFee", displayName: "Late Fee", class: "col-2" },
-    { name: "principal", displayName: "Principal", class: "col-2" },
-    { name: "loanType.numMonths", displayName: "Month Duration", class: "col-2" },
-    { name: "createDate", displayName: "Date Created", class: "col-2" },
-    { name: "nextDueDate", displayName: "Next Due Date", class: "col-2" },
-    { name: "previousDueDate", displayName: "Previous Due Date", class: "col-2" },
-    { name: "hasPaid", displayName: "Paid Status", class: "col-2" }
-  ];
-
 
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) { }
   ngOnInit(): void {
+    this.width = window.innerWidth;
+    console.log('width: ', this.width)
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
     this.persLoanApr = this.setAPR(100);
     this.mortLoanApr = this.setAPR(6);
     this.autoLoanApr = this.setAPR(10);
+    this.specLoanApr = this.setAPR(50);
+    this.update();
+    this.initializeForms();
+  }
+
+  @HostListener('window:resize', [])
+  private onResize() {
+    this.width = window.innerWidth;
+    console.log('resized to: ' + this.width)
+  }
+
+  addToSortBy(field: string) {
+    console.log('add to sort by: ', field)
+    if(field === 'Id'){
+      this.sortById = true;
+      this.idOrder = this.idOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'balance') {
+      this.sortByBalance = true;
+      this.balanceOrder = this.balanceOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'createDate'){
+      this.sortByCreateDate = true;
+      this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'userId'){
+      this.sortByUserId = true;
+      this.userIdOrder = this.userIdOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'createDate'){
+      this.sortByCreateDate = true;
+      this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'apr'){
+      this.sortByAPR= true;
+      this.aprOrder = this.aprOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'type'){
+      this.sortByType = true;
+      this.typeOrder = this.typeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'isActive'){
+      this.sortByIsPaid = true;
+      this.isPaidOrder = this.isPaidOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'isPaid'){
+      this.sortByIsPaid = true;
+      this.isPaidOrder = this.isPaidOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'minMonthFee'){
+      this.sortByMinMonthFee = true;
+      this.minMonthFeeOrder = this.minMonthFeeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'monthsRemaining'){
+      this.sortByMonthsRemaining = true;
+      this.monthRemainingOrder = this.monthRemainingOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'currentDue'){
+      this.sortByCurrentDue = true;
+      this.currentDueOrder = this.currentDueOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'lateFee'){
+      this.sortByLateFee = true;
+      this.lateFeeOrder = this.lateFeeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'principal'){
+      this.sortByPrincipal = true;
+      this.principalOrder = this.principalOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'nextDue'){
+      this.sortByNextPay = true;
+      this.nextPayOrder = this.nextPayOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'prevDue'){
+      this.sortByPrevPay = true;
+      this.prevPayOrder = this.prevPayOrder === 'desc' ? 'asc' : 'desc';
+    }
+
+    this.updatePage();
+  }
+
+  private assembleQueryParams() {
+    this.sortBy = [];
+
+    if(this.sortById){
+      this.sortBy.push('id,' + this.idOrder);
+    }
+    if(this.sortByBalance){
+      this.sortBy.push('balance_dollars,' + this.balanceOrder);
+    }
+    if(this.sortByCreateDate){
+      this.sortBy.push('createDate,' + this.createDateOrder);
+    }
+    if(this.sortByUserId){
+      this.sortBy.push('user_userId,' + this.userIdOrder);
+    }
+    if(this.sortByAPR){
+      this.sortBy.push('loanType_apr,' + this.aprOrder);
+    }
+    if(this.sortByIsPaid){
+      this.sortBy.push('payment_hasPaid,' + this.isPaidOrder);
+    }
+    if(this.sortByPrincipal){
+      this.sortBy.push('principal_dollars,' + this.principalOrder);
+    }
+    if(this.sortByLateFee){
+      this.sortBy.push('payment_lateFee_dollars,' + this.lateFeeOrder);
+    }
+    if(this.sortByCurrentDue){
+      this.sortBy.push('payment_minDue_dollars,' + this.currentDueOrder);
+    }
+    if(this.sortByNextPay){
+      this.sortBy.push('payment_nextDueDate,' + this.nextPayOrder);
+    }
+    if(this.sortByPrevPay){
+      this.sortBy.push('payment_previousDueDate,' + this.prevPayOrder);
+    }
+    if(this.sortByType){
+      this.sortBy.push('loanType_typeName,' + this.typeOrder);
+    }
+    if (this.sortByMonthsRemaining) {
+      this.sortBy.push('loanType_numMonths,' + this.monthRemainingOrder)
+    }
+  }
+
+  private assemblePredicate(){
+    this.assembleQueryParams()
+
+    this.predicate = "?pageNum=" + this.pageIndex + "&&pageSize=" + this.pageSize;
+    this.predicate += this.sortBy.length > 0 ? '&&sortBy=' + this.sortBy : '';
+    this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
+    console.log('assembled predicate: ' + this.predicate)
+  }
+
+  updatePage(){
+    this.loans = [];
+
+    this.assemblePredicate();
     this.update();
     this.initializeForms();
   }
@@ -96,13 +226,14 @@ export class LoanComponent implements OnInit {
       this.pageIndex = 0;
       this.pageSize = pe.pageSize;
     }
+    this.assemblePredicate();
     this.loans = new Array();
     this.update();
   }
 
   async creditReport() {
     console.log('sending credit report ...')
-    var loanType = await this.httpService.getNewUUID('http://localhost:9001/loantypes/new');
+    var loanType = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.loanTypesEndpoint}/new`);
     loanType.activeStatus = true;
     console.log('apr found: ', this.updateLoanForm)
     loanType.apr = this.updateLoanForm.controls['apr'].value;
@@ -115,17 +246,17 @@ export class LoanComponent implements OnInit {
     console.log('userId found: ', userId)
     if (!this.updateLoanForm.controls['userId'].invalid && !this.updateLoanForm.controls['typeName'].invalid) {
       console.log('outbound loantype: ', loanType)
-     await this.httpService.creditCheck('http://localhost:9001/loans/check/' + userId, this.activeLoanType)
-     .subscribe((res) => {
-      console.log('loan received: ', res);
-      let loan: any;
-      loan = res;
-      this.activeLoan = loan;
-      console.log(loan.balance);
-      this.updateLoanForm.controls['balance'].setValue(loan.balance.dollars + (loan.balance.cents / 100));
-      this.updateLoanForm.controls['minDue'].setValue(loan.minDue.dollars + (loan.minDue.cents / 100));
-      this.updateLoanForm.controls['principal'].setValue(loan.principal.dollars + (loan.principal.cents / 100));
-     });
+      await this.httpService.creditCheck(`${environment.baseUrl}${environment.loansEndpoint}/check/` + userId, this.activeLoanType)
+        .subscribe((res) => {
+          console.log('loan received: ', res);
+          let loan: any;
+          loan = res;
+          this.activeLoan = loan;
+          console.log(loan.balance);
+          this.updateLoanForm.controls['balance'].setValue(loan.balance.dollars + (loan.balance.cents / 100));
+          this.updateLoanForm.controls['minDue'].setValue(loan.payment.minDue.dollars + (loan.payment.minDue.cents / 100));
+          this.updateLoanForm.controls['principal'].setValue(loan.principal.dollars + (loan.principal.cents / 100));
+        });
     } else {
       window.alert('Invalid input! Check userId and loan type fields!.')
     }
@@ -139,43 +270,37 @@ export class LoanComponent implements OnInit {
     return l;
   }
 
-  setSort(property: string) {
-    if (this.asc && this.sort === property) {
-      this.asc = false;
-      this.dir = "desc";
-      this.update();
-    } else {
-      console.log('asc true')
-      if (property !== 'firstName' && property !== 'lastName') {
-        this.sort = property;
-        this.asc = true;
-        this.dir = "asc";
-        this.update();
-      }
-      else {
-        // alert('Cannot sort by name.')
-      }
-    }
-  }
-
   setSearch(search: string) {
-    this.search = search;
+    this.searchCriteria = search;
   }
 
   refresh() {
-    this.search = "";
-    this.sort = 'Id';
-    this.dir = 'asc';
+    this.sortByUserId = false;
+    this.sortById = false;
+    this.sortByType = false;
+    this.sortByAPR = false;
+    this.sortByBalance = false;
+    this.sortByMinMonthFee = false;
+    this.sortByCurrentDue = false;
+    this.sortByLateFee = false;
+    this.sortByPrincipal = false;
+    this.sortByMonthsRemaining = false;
+    this.sortByCreateDate = false;
+    this.sortByNextPay = false;
+    this.sortByPrevPay = false;
+    this.sortByIsPaid = false;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
+    this.predicate = '?pageNum=' + this.pageIndex + '&&pageSize=' + this.pageSize;
+    this.searchCriteria = '';
     this.update();
   }
 
   update() {
     this.loans = [];
     this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
-    this.httpService.getLoans(this.pageIndex, this.pageSize, this.sort, this.dir, this.search)
+    this.httpService.getAll(`${environment.baseUrl}${environment.loansEndpoint}` + this.predicate)
       .subscribe((res) => {
         console.log(res);
         let arr: any;
@@ -184,8 +309,8 @@ export class LoanComponent implements OnInit {
         console.log('found: ', res)
         for (let obj of arr.content) {
           let u = new Loan(obj.createDate, CurrencyValue.from(obj.balance), CurrencyValue.from(obj.principal),
-            CurrencyValue.from(obj.minDue), CurrencyValue.from(obj.lateFee), obj.id, obj.loanType,
-            obj.nextDueDate, obj.previousDueDate, obj.user, obj.minMonthFee, obj.hasPaid);
+            obj.payment, obj.id, obj.loanType, obj.user);
+            console.log(u)
           this.loans.push(u);
         }
         this.data = {
@@ -196,8 +321,15 @@ export class LoanComponent implements OnInit {
         };
       }, (err) => {
         console.error("Failed to retrieve loans", err);
-        window.alert("Error trying to retrieve Loans")
+        console.log('error status: ', err.status)
         this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
+        if (err.status === 503) {
+          setTimeout(() => {
+            console.log('sleeping...')
+            window.alert('[503 ERROR: LOANSERVICE] \nServers did not respond. They may be down, or your connection may be interrupted. Page will refresh until a connedction can be established')
+            window.location.reload();
+          }, 5000);
+        }
       })
   }
 
@@ -221,7 +353,7 @@ export class LoanComponent implements OnInit {
 
   deleteLoan(id: String) {
     if (window.confirm('Are you sure you want to remove: ' + id + '? It will be removed from the database completely.')) {
-      this.httpService.deleteById("http://localhost:9001/loans/" + id).subscribe((result) => {
+      this.httpService.deleteById(`${environment.baseUrl}${environment.loansEndpoint}/` + id).subscribe((result) => {
         console.log(result);
         this.users.length = 0;
       });
@@ -231,7 +363,7 @@ export class LoanComponent implements OnInit {
 
   async lateFeeCheck() {
     let body = JSON.parse(JSON.stringify(this.activeLoan));
-    const r = await this.httpService.update("http://localhost:9001/loans/late", body)
+    const r = await this.httpService.update(`${environment.baseUrl}${environment.loansEndpoint}/late`, body)
     console.log('result: ', r)
     window.alert('Checking for past due fees...')
     window.location.reload();
@@ -258,7 +390,7 @@ export class LoanComponent implements OnInit {
         '\balance: ', this.updateLoanForm.controls['balance'].value,
         '\principal: ', this.updateLoanForm.controls['principal'].value,
         '\nnegative: ', this.updateLoanForm.controls['negative'].value &&
-        '\nmonths: ', this.updateLoanForm.controls['numMonths'].value,
+      '\nmonths: ', this.updateLoanForm.controls['numMonths'].value,
         // this.updateLoanForm.controls['description'].value,
         '\ncreate: ', this.updateLoanForm.controls['createDate'].value,
         '\nnext: ', this.updateLoanForm.controls['nextDueDate'].value,
@@ -276,12 +408,12 @@ export class LoanComponent implements OnInit {
       let loanType = loan.$loanType;
       if (!this.editing) {
         console.log('not editing. getting new loan...')
-        loan = await this.httpService.getNewUUID('http://localhost:9001/loans/new', this.updateLoanForm.controls['userId'].value);
-        loanType = await this.httpService.getNewUUID('http://localhost:9001/loantypes/new');
+        loan = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.loansEndpoint}/new`, this.updateLoanForm.controls['userId'].value);
+        loanType = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.loanTypesEndpoint}/new`);
       }
       console.log('loan body made: ', loan)
       console.log('loantype body made: ', loanType)
-      let c: CurrencyValue = this.updateLoanForm.controls['balance'].value;
+      let c = CurrencyValue.valueOf(this.updateLoanForm.controls['balance'].value);
       console.log('balance found: ', c)
       let num = c.getDollars + (c.getCents / 100);
       let c2 = CurrencyValue.valueOf(this.updateLoanForm.controls['principal'].value)
@@ -304,15 +436,18 @@ export class LoanComponent implements OnInit {
         this.updateLoanForm.controls['createDate'].value,
         c,
         c2,
+        new Payment(
+          'Example text',
         new CurrencyValue(false, 0, 0),
         new CurrencyValue(false, 0, 0),
-        uuid,
-        t,
         this.updateLoanForm.controls['nextDueDate'].value,
         this.updateLoanForm.controls['previousDueDate'].value,
-        loan.$user,
-        this.updateLoanForm.controls['minMonthFee'].value,
-        false);
+        false,
+        this.updateLoanForm.controls['minMonthFee'].value
+        ),
+        uuid,
+        t,
+        loan.$user);
       const loanBody = u;
       const typeBody = t;
       this.activeLoanType = typeBody;
@@ -321,7 +456,7 @@ export class LoanComponent implements OnInit {
 
       if (!uuid) {
         console.log('Id value found')
-        window.confirm('Save Loan ' + uuid + '?');
+        window.confirm('Save ' + typeBody.$typeName + ' Loan?');
       }
       else {
         console.log('no Id found')
@@ -329,7 +464,7 @@ export class LoanComponent implements OnInit {
         window.location.reload();
       }
       if (this.editing) {
-        this.httpService.update('http://localhost:9001/loans', loanBody).subscribe((result) => {
+        this.httpService.update(`${environment.baseUrl}${environment.loansEndpoint}`, loanBody).subscribe((result) => {
           console.log("updating" + result);
           this.loans.length = 0;
           this.update()
@@ -337,12 +472,12 @@ export class LoanComponent implements OnInit {
         });
       }
       else {
-        this.httpService.create('http://localhost:9001/loantypes', this.activeLoanType).subscribe((result) => {
+        this.httpService.create(`${environment.baseUrl}${environment.loanTypesEndpoint}`, this.activeLoanType).subscribe((result) => {
           console.log("creating loantype " + result);
           this.loans.length = 0;
           this.update()
         });
-        this.httpService.create('http://localhost:9001/loans', this.activeLoan).subscribe((result) => {
+        this.httpService.create(`${environment.baseUrl}${environment.loansEndpoint}`, this.activeLoan).subscribe((result) => {
           console.log("creating loan " + result);
           this.loans.length = 0;
           this.update()
@@ -383,27 +518,27 @@ export class LoanComponent implements OnInit {
       console.log('editing existing loan...', u)
       this.activeLoan = u;
       let userId = u.$user.userId
-      console.log('description found: ', u.$loanType.description)
       this.editing = true;
       this.modalHeader = 'Edit Loan';
       this.updateLoanForm = this.fb.group({
         userId: u.$user.userId,
         id: u.$id,
         balance: u.$balance,
-        minDue: u.$minDue,
-        lateFee: u.$lateFee,
+        minDue: CurrencyValue.from(u.$payment.minDue).toString(),
+        lateFee: CurrencyValue.from(u.$payment.lateFee).toString(),
         negative: u.$balance.isNegative,
         typeName: u.$loanType.typeName,
         apr: u.$loanType.apr,
         numMonths: u.$loanType.numMonths,
         description: u.$loanType.description,
-        createDate: u.$createDate,
-        nextDueDate: u.$nextDueDate,
-        previousDueDate: u.$previousDueDate,
-        principal: u.$principal.dollars + u.$principal.cents / 100,
-        minMonthFee: u.$minMonthFee,
-        hasPaid: u.$hasPaid
+        createDate: u.$createDate.toString().slice(5, 7) + '/' + u.$createDate.toString().slice(8, 10) + '/' + u.$createDate.toString().slice(0, 4) + ' ' + u.$createDate.toString().slice(11, 20),
+        nextDueDate: u.$payment.nextDueDate.toString().slice(5, 7) + '/' + u.$payment.nextDueDate.toString().slice(8, 10) + '/' + u.$payment.nextDueDate.toString().slice(0, 4) + ' ' + u.$payment.nextDueDate.toString().slice(11, 20),
+        previousDueDate: u.$payment.previousDueDate.toString().slice(5, 7) + '/' + u.$payment.previousDueDate.toString().slice(8, 10) + '/' + u.$payment.previousDueDate.toString().slice(0, 4) + ' ' + u.$payment.previousDueDate.toString().slice(11, 20),
+        principal: u.$principal,
+        minMonthFee: u.$payment.minMonthFee,
+        hasPaid: u.$payment.hasPaid
       });
+      console.log('form: ', this.updateLoanForm.value)
     } else {
       console.log('creating new loan...')
       this.editing = false;

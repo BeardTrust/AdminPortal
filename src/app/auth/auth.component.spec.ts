@@ -6,6 +6,7 @@ import {AuthService} from "@services/auth.service";
 import {FormsModule} from "@angular/forms";
 import objectContaining = jasmine.objectContaining;
 import {HttpHeaders, HttpResponse} from "@angular/common/http";
+import { environment } from 'src/environments/environment';
 
 describe('AuthComponent', () => {
   let authService: AuthService;
@@ -56,7 +57,7 @@ describe('AuthComponent', () => {
       statusText: 'OK'
     });
 
-    const call = userService.expectOne('http://localhost:9001/users/login');
+    const call = userService.expectOne(`${environment.baseUrl}${environment.authEndpoint}`);
     expect(call.request.method).toEqual('POST');
     call.flush(response);
 

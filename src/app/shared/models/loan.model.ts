@@ -1,6 +1,7 @@
 import { ThisReceiver } from "@angular/compiler";
 import {CurrencyValue} from "./currencyvalue.model";
 import { LoanType } from "./loanType.model";
+import { Payment } from "./payment.model";
 import { User } from "./user.model";
 
 export class Loan {
@@ -8,45 +9,18 @@ export class Loan {
     private id: String;
     private balance: CurrencyValue;
     private principal: CurrencyValue;
-    private minDue: CurrencyValue;
-    private lateFee: CurrencyValue;
+    private payment: Payment;
     private loanType: LoanType;
     private createDate: Date;
-    private nextDueDate: Date;
-    private previousDueDate: Date;
-    private minMonthFee: String;
-    private hasPaid: boolean;
 
-    constructor(createDate: Date, balance: CurrencyValue, principal: CurrencyValue, minDue: CurrencyValue, lateFee: CurrencyValue, id: String, loanType: LoanType, 
-        nextDueDate: Date, previousDueDate: Date,  user: User, minMonthFee: String, hasPaid: boolean) {
+    constructor(createDate: Date, balance: CurrencyValue, principal: CurrencyValue, $payment: Payment, id: String, loanType: LoanType, user: User) {
         this.user = user;
         this.id = id;
         this.balance = balance;
         this.principal = principal;
-        this.minDue = minDue;
-        this.lateFee = lateFee;
+        this.payment = $payment;
         this.loanType = loanType;
         this.createDate = createDate;
-        this.nextDueDate = nextDueDate;
-        this.previousDueDate = previousDueDate;
-        this.minMonthFee = minMonthFee;
-        this.hasPaid = hasPaid;
-    }
-
-    get $minDue() {
-        return this.minDue
-    }
-
-    set $minDue(val: CurrencyValue) {
-        this.minDue = val
-    }
-
-    get $lateFee() {
-        return this.lateFee
-    }
-
-    set $lateFee(val: CurrencyValue) {
-        this.lateFee = val
     }
 
     get $user() {
@@ -97,35 +71,11 @@ export class Loan {
         this.createDate = val
     }
 
-    get $nextDueDate() {
-        return this.nextDueDate
+    public get $payment() {
+        return this.payment
     }
 
-    set $nextDueDate(val: Date) {
-        this.nextDueDate = val
-    }
-
-    get $previousDueDate() {
-        return this.previousDueDate
-    }
-
-    set $previousDueDate(val: Date) {
-        this.previousDueDate = val
-    }
-
-    get $minMonthFee() {
-        return this.minMonthFee
-    }
-
-    set $minMonthFee(val: String) {
-        this.minMonthFee = val
-    }
-
-    get $hasPaid() {
-        return this.hasPaid
-    }
-
-    set $hasPaid(val: boolean) {
-        this.hasPaid = val
+    set $payment(val: Payment) {
+        this.payment = val
     }
 }

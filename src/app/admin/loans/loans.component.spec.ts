@@ -12,6 +12,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CurrencyValue } from '../../shared/models/currencyvalue.model';
 import { LoanType } from '../../shared/models/loanType.model';
+import { environment } from 'src/environments/environment';
 
 describe('LoansComponent', () => {
   let component: LoanComponent;
@@ -48,7 +49,7 @@ describe('LoansComponent', () => {
       status: 200,
       statusText: 'OK'
     });
-    const call = loanService.expectOne('http://localhost:9001/loans?pageNum=0&pageSize=5&sortName=id&sortDir=asc&search=');
+    const call = loanService.expectOne(`${environment.baseUrl}${environment.loansEndpoint}?pageNum=0&pageSize=5&sortName=id&sortDir=asc&search=`);
     expect(call.request.method).toEqual('GET');
     call.flush(response);
     loanService.verify();
@@ -62,8 +63,8 @@ describe('LoansComponent', () => {
       status: 200,
       statusText: 'OK'
     });
-    //const call = cardService.expectOne('http://localhost:9001/cards/');
-    // const call2 = loanService.expectOne('http://localhost:9001/loans?pageNum=0&pageSize=5&sortName=id&sortDir=asc&search=');
+    //const call = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/`);
+    // const call2 = loanService.expectOne(`${environment.baseUrl}${environment.loansEndpoint}?pageNum=0&pageSize=5&sortName=id&sortDir=asc&search=`);
     //expect(call.request.method).toEqual('GET');
     // expect(call2.request.method).toEqual('GET');
     //call.flush(response);
@@ -91,10 +92,10 @@ describe('LoansComponent', () => {
       statusText: 'OK'
     });
 
-    const call1 = loanService.expectOne("http://localhost:9001/loans/new");
+    const call1 = loanService.expectOne(`${environment.baseUrl}${environment.loansEndpoint}/new`);
     expect(call1.request.method).toEqual('GET');
 
-    const call2 = loanService.expectOne("http://localhost:9001/loans");
+    const call2 = loanService.expectOne(`${environment.baseUrl}${environment.loansEndpoint}`);
     expect(call2.request.method).toEqual('POST');
   });
 

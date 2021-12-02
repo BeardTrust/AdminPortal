@@ -8,36 +8,73 @@
         <button type="submit" (click)="refresh()" class="btn btn-outline-secondary btn-small">
             <mat-icon>refresh</mat-icon>
         </button>
-        <input type="text" class="form-control col-sm-2 col-lg-3" [ngModel]="search" (ngModelChange)="setSearch($event)"
+        <input type="text" class="form-control col-sm-2 col-lg-3" [ngModel]="searchCriteria" (ngModelChange)="setSearch($event)"
             placeholder="Search">
         <button type="input" class="btn btn-outline-secondary btn-small" (click)="update()">Search</button>
     </div>
-    <table description='table header accounts' class="table table-striped table-hover table-active border border-secondary shadow-lg">
+    <table description='table header accounts'
+        class="table table-responsive-sm table-striped table-hover table-active border border-secondary shadow-lg">
         <thead>
             <tr>
-                <th scope="col">#</th>
-                <th *ngFor="let a of account" scope="col" [class]="a.class" (click)="setSort(a.name)">
-                    {{a.displayName}}
-                    <span *ngIf="sort === a.name">
-                        {{asc ? ' ↑' : ' ↓'}}
-                    </span>
+                <ng-container *ngIf="width > 1050">
+                    <th scope="col-1">#</th>
+                </ng-container>
+                    <th *ngIf="width > 500" (click)="addToSortBy('userId')">
+                        UserId
+                    {{this.sortByUserId === true ? this.userIdOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
                 </th>
-                <th id="edit title">Edit</th>
-                <th id="delete title">Delete</th>
+                    <th *ngIf="width > 300"  (click)="addToSortBy('Id')" scope="col-1">
+                        Account Id
+                        {{this.sortById === true ? this.idOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 500" (click)="addToSortBy('isActive')" scope="col-1">
+                        Is Active
+                        {{this.sortByIsActive === true ? this.isActiveOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 400" (click)="addToSortBy('balance')" scope="col-1">
+                        Balance
+                        {{this.sortByBalance === true ? this.balanceOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 900" (click)="addToSortBy('createDate')" scope="col-1">
+                        Date Created
+                        {{this.sortByCreateDate === true ? this.createDateOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 950" (click)="addToSortBy('interest')" scope="col-1">
+                        Interest
+                        {{this.sortByInterest === true ? this.interestOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 1050" (click)="addToSortBy('nickname')" scope="col-1">
+                        Nickname
+                        {{this.sortByNickname === true ? this.nicknameOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <th *ngIf="width > 850" (click)="addToSortBy('type')" scope="col-1">
+                        Type
+                        {{this.sortByType === true ? this.typeOrder === 'asc' ? ' ↑' : ' ↓' : ''}}
+                    </th>
+                    <!-- <th scope="col-1" [class]="a.class" (click)="setSort(a.name)">
+                        <ng-container class="a.class" *ngIf="width > a.maxWidth">
+                            {{a.displayName}}
+                        </ng-container>
+                        <ng-container *ngIf="sort === a.name && width > a.maxWidth">
+                            {{asc ? ' ↑' : ' ↓'}}
+                        </ng-container>
+                    </th> -->
+                <th class="col-1" id="edit title">Edit</th>
+                <th class="col-1" id="delete title">Delete</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let a of accounts; let i=index">
-                <td>{{ i+1 }}</td>
-                <td>{{ a.$user.userId }}</td>
-                <td>{{ a.$id }}</td>
-                <td>{{ a.$activeStatus }}</td>
-                <td>{{ a.$balance.toString() }}</td>
-                <td>{{ a.$createDate }}</td>
-                <td>{{ a.$interest }}%</td>
-                <td>{{ a.$nickname }}</td>
+                <td *ngIf="width > 1050">{{ i+1 }}</td>
+                <td class="col-1" *ngIf="width > 500">{{ a.$user.userId }}</td>
+                <td *ngIf="width > 300">{{ a.$id }}</td>
+                <td *ngIf="width > 500">{{ a.$activeStatus }}</td>
+                <td class="col-1" *ngIf="width > 400">{{ a.$balance.toString() }}</td>
+                <td *ngIf="width > 900">{{ a.$createDate }}</td>
+                <td *ngIf="width > 950">{{ a.$interest }}%</td>
+                <td *ngIf="width > 1050">{{ a.$nickname }}</td>
                 <!-- <td>{{ a.$type.description }}</td> -->
-                <td>{{ a.$type.name }}</td>
+                <td *ngIf="width > 850">{{ a.$type.name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary" (click)="open(updateAccountModal, a)">Edit</button>
                 </td>
@@ -79,13 +116,14 @@
                         </div>
                         <div *ngIf="editing" class="input-group mb-2">
                             <label for="type" class="input-group-text">Account Type: </label>
-                            <input type="text" id="type" formControlName="type" class="form-control" readonly="readonly" />
+                            <input type="text" id="type" formControlName="type" class="form-control"
+                                readonly="readonly" />
                         </div>
                         <div *ngIf="!editing" class="input-group mb-2">
                             <label class="input-group-text" for="type">Account Type</label>
                             <select class="form-select" id="type" formControlName="type">
-                                <option value="Savings">Savings</option>
-                                <option value="Checking">Checking</option>
+                                <option value="SuperSaver">SuperSavers</option>
+                                <option value="CoolCash">CoolCash</option>
                                 <option value="Recovery">Recovery</option>
                             </select>
                         </div>
@@ -94,32 +132,33 @@
                             <textarea type="text" id="description" formControlName="description"
                                 class="form-control sr-only"></textarea>
                         </div>
-                        <div *ngIf="editing" class="input-group mb-2">
+                        <!-- <div *ngIf="editing" class="input-group mb-2">
                             <label for="description" class="input-group-text">Description: </label>
                             <textarea type="text" id="description" formControlName="description"
                                 class="form-control sr-only"></textarea>
-                        </div>
+                        </div> -->
                         <div class="input-group mb-2">
                             <label for="interest" class="input-group-text">Interest Rate: </label>
-                                <input type="number" step="0.01" id="interest" formControlName="interest"
-                                    class="form-control" />
-                                <div *ngIf="interest?.invalid && (interest?.dirty || interest?.touched)">
-                                    <div *ngIf="interest?.errors?.required">
-                                        <small class="text-danger">Interest is required</small>
-                                    </div>
+                            <input type="number" step="0.01" id="interest" formControlName="interest"
+                                class="form-control" />
+                            <div *ngIf="interest?.invalid && (interest?.dirty || interest?.touched)">
+                                <div *ngIf="interest?.errors?.required">
+                                    <small class="text-danger">Interest is required</small>
                                 </div>
-                                <div class="input-group-append">
-                                    <label for="interestSymbol" class="input-group-text">%</label>
-                                </div>
+                            </div>
+                            <div class="input-group-append">
+                                <label for="interestSymbol" class="input-group-text">%</label>
+                            </div>
                         </div>
                         <div class="input-group mb-2">
                             <label for="nickname" class="input-group-text">Nickname: </label>
                             <input type="text" id="nickname" formControlName="nickname" class="form-control" />
                         </div>
-                        <div *ngIf="!editing" class="input-group mb-2" >
+                        <div *ngIf="!editing" class="input-group mb-2">
                             <button class="btn btn-secondary" type="button" (click)="requestAccount()">Activate
                                 Account</button>
-                                <label *ngIf="depositReady" class="input-group-text" id="depositTitle" >Enter an Initial Deposit:</label>
+                            <label *ngIf="depositReady" class="input-group-text" id="depositTitle">Enter an Initial
+                                Deposit:</label>
                         </div>
                         <div *ngIf="editing || depositReady" class="input-group mb-2">
                             <label for="balance" class="input-group-text">Balance: </label>
@@ -132,13 +171,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div *ngIf="editing || depositReady"  class="input-group mb-2">
+                        <div *ngIf="editing || depositReady" class="input-group mb-2">
                             <div class="input-group-text">
                                 <label for="activeStatus">Active Status:</label>
-                                <input type="checkbox" id="activeStatus" formControlName="activeStatus" value="true"/>
+                                <input type="checkbox" id="activeStatus" formControlName="activeStatus" value="true" />
                             </div>
                         </div>
-                        <div *ngIf="editing || depositReady"  class="input-group mb-2">
+                        <div *ngIf="editing || depositReady" class="input-group mb-2">
                             <label for="createDate" class="input-group-text">Creation Date: </label>
                             <input type="text" id="createDate" formControlName="createDate" class="form-control"
                                 readonly="readonly" />

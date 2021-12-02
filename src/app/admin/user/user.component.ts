@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../shared/services/http.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { User } from 'src/app/shared/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-user',
@@ -13,6 +14,7 @@ import { PageEvent } from '@angular/material/paginator';
 export class UserComponent implements OnInit {
 
   users: User[] = new Array();
+  sortBy: string[] = [];
   updateUserForm!: FormGroup;
   modalRef!: NgbModalRef;
   errorMessage: any;
@@ -22,11 +24,29 @@ export class UserComponent implements OnInit {
   totalItems: any;
   pageIndex: any;
   pageSize: any;
+  width!: number;
+  predicate: string = '?page=0&&size=5';
+  searchCriteria: string = '';
+  sortByFirstname: boolean = false;
+  firstnameOrder: string = 'desc';
+  sortByLastname: boolean = false;
+  lastnameOrder: string = 'desc';
+  sortByUserId: boolean = false;
+  userIdOrder: string = 'desc';
+  sortByUsername: boolean = false;
+  usernameOrder: string = 'desc';
+  sortByEmail: boolean = false;
+  emailOrder: string = 'desc';
+  sortByPhone: boolean = false;
+  phoneOrder: string = 'desc';
+  sortByDateOfBirth: boolean = false;
+  dateOfBirthOrder: string = 'desc';
+  sortByRole: boolean = false;
+  roleOrder: string = 'desc';
 
 
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) { }
 
-  @Input() search!: string;
   @Output() searchChange = new EventEmitter<string>();
   @Input() sort!: string;
   @Output() sortChange = new EventEmitter<number>();
@@ -53,11 +73,18 @@ export class UserComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.width = window.innerWidth;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
     this.loadUsers();
     this.initializeForms();
+  }
+
+  @HostListener('window:resize', [])
+  private onResize() {
+    this.width = window.innerWidth;
+    console.log('resized to: ' + this.width)
   }
 
   onChangePage(pe:PageEvent) {
@@ -81,32 +108,115 @@ export class UserComponent implements OnInit {
     }
   }
 
-  setSearch(search: string) {
-    this.search = search;
-  }
-
   refresh() {
-    this.search = "";
-    this.sort = 'Id';
-    this.asc = true;
+    this.predicate = '?page=0&&size=5';
+    this.sortByUserId = false;
+    this.sortByFirstname = false;
+    this.sortByLastname = false;
+    this.sortByUsername = false;
+    this.sortByUserId = false;
+    this.sortByEmail = false;
+    this.sortByPhone = false;
+    this.sortByRole = false;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
     this.loadUsers();
   }
 
+  addToSortBy(field: string) {
+    if(field === 'id'){
+      this.sortByUserId = true;
+      this.userIdOrder = this.userIdOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'firstname') {
+      this.sortByFirstname = true;
+      this.firstnameOrder = this.firstnameOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'lastname') {
+      this.sortByLastname = true;
+      this.lastnameOrder = this.lastnameOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'dob'){
+      this.sortByDateOfBirth = true;
+      this.dateOfBirthOrder = this.dateOfBirthOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'phone'){
+      this.sortByPhone = true;
+      this.phoneOrder = this.phoneOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'email'){
+      this.sortByEmail = true;
+      this.emailOrder = this.emailOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'role') {
+      this.sortByRole = true;
+      this.roleOrder = this.roleOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'username') {
+      this.sortByUsername = true;
+      this.usernameOrder = this.usernameOrder === 'desc' ? 'asc' : 'desc';
+    }
+
+    this.updatePage();
+  }
+
+  private assembleQueryParams() {
+    this.sortBy = [];
+
+    if(this.sortByUserId){
+      this.sortBy.push('userId,' + this.userIdOrder);
+    }
+    if(this.sortByFirstname){
+      this.sortBy.push('firstName,' + this.firstnameOrder);
+    }
+    if(this.sortByLastname){
+      this.sortBy.push('lastName,' + this.lastnameOrder);
+    }
+    if(this.sortByUsername){
+      this.sortBy.push('username,' + this.usernameOrder);
+    }
+    if(this.sortByDateOfBirth){
+      this.sortBy.push('dateOfBirth,' + this.dateOfBirthOrder);
+    }
+    if(this.sortByRole){
+      this.sortBy.push('role,' + this.roleOrder);
+    }
+    if(this.sortByEmail){
+      this.sortBy.push('email,' + this.emailOrder);
+    }
+    if(this.sortByPhone){
+      this.sortBy.push('phone,' + this.phoneOrder);
+    }
+  }
+
+  private assemblePredicate(){
+    this.assembleQueryParams()
+
+    this.predicate = "?page=" + this.pageIndex + "&&size=" + this.pageSize;
+    this.predicate += this.sortBy.length > 0 ? '&&sortBy=' + this.sortBy : '';
+    this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
+  }
+
+  search() {
+    this.updatePage();
+
+  }
+
+  updatePage(){
+    this.users = [];
+
+    this.assemblePredicate();
+
+    this.loadUsers();
+    this.initializeForms();
+  }
+
   loadUsers() {
+    console.log('outbound predicate: ', this.predicate)
     this.users = [];
     this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
     this.httpService
-    .getUsers(this.pageIndex, this.pageSize, this.sort, this.asc, this.search)
+    .getAll(`${environment.baseUrl}${environment.adminEndpoint}${environment.usersEndpoint}` + this.predicate)
     .subscribe((response) => {
       let arr: any;
       arr = response;
       this.totalItems = arr.totalElements;
       for(let obj of arr.content){
-        console.log('in for loop, arr = ', arr)
-        let u = new User(obj.username, obj.password, obj.email, obj.phone,
+        let u = new User(obj.username, obj.password, obj.email, obj.phone, 
           obj.firstName, obj.lastName, obj.dateOfBirth, obj.role, obj.userId);
         console.log(u);
         this.users.push(u);
@@ -121,8 +231,16 @@ export class UserComponent implements OnInit {
       console.log('data: ', this.data)
       console.log('totalelems: ', arr.totalElements)
     }, (err) => {
-      console.error("Failed to retrieve accounts", err);
+      console.error("Failed to retrieve users", err);
+      console.log('error status: ', err.status)
       this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
+      if (err.status === 503) {
+        setTimeout(() => {
+          console.log('sleeping...')
+          window.alert('[503 ERROR: USERSERVICE] \nServers did not respond. They may be down, or your connection may be interrupted. Page will refresh until a connedction can be established')
+          window.location.reload();
+        }, 5000);
+      }
     })
   }
   initializeForms() {
@@ -140,7 +258,7 @@ export class UserComponent implements OnInit {
 
   deleteUser(id: String){
     window.confirm("delete user " + id + "?");
-    this.httpService.deleteById('http://localhost:9001/admin/users/' + id).subscribe((result)=>{
+    this.httpService.deleteById(`${environment.baseUrl}${environment.adminEndpoint}${environment.usersEndpoint}` + id).subscribe((result)=>{
       console.log(result);
       this.users.length = 0;
       this.loadUsers();
@@ -164,7 +282,7 @@ export class UserComponent implements OnInit {
 
     if (this.createNew){
       console.log("saving...");
-      this.httpService.create('http://localhost:9001/users', body).subscribe((result)=>{
+      this.httpService.create(`${environment.baseUrl}${environment.usersEndpoint}`, body).subscribe((result)=>{
         console.log("save " + result);
         this.users.length = 0;
         this.createNew = false;
@@ -173,7 +291,7 @@ export class UserComponent implements OnInit {
     }
     else{
       console.log("editing...");
-      this.httpService.update('http://localhost:9001/admin/users/' + this.updateUserForm.controls['userId'].value, body).subscribe((result)=>{
+      this.httpService.update(`${environment.baseUrl}${environment.adminEndpoint}${environment.usersEndpoint}` + this.updateUserForm.controls['userId'].value, body).subscribe((result)=>{
         console.log("updating: " + result);
         this.users.length = 0;
         this.loadUsers();
@@ -202,7 +320,7 @@ export class UserComponent implements OnInit {
     }
     else{
       this.modalHeader = 'Add New User';
-      const uuid = await this.httpService.getNewUUID('http://localhost:9001/accounts/new');
+      const uuid = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.accountsEndpoint}/new`);
       this.createNew = true;
       console.log("createModal True");
       if(this.updateUserForm){

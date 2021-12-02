@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -6,8 +6,10 @@ import { Card } from '../../shared/models/card.model';
 import { Cardtype } from '../../shared/models/cardtype.model';
 import { CardRegistration } from '../../shared/models/cardregistration.model';
 import { HttpService } from '../../shared/services/http.service';
-import { PageEvent } from "@angular/material/paginator";
-import { CurrencyValue } from "../../shared/models/currencyvalue.model";
+import {PageEvent} from "@angular/material/paginator";
+import {CurrencyValue} from "../../shared/models/currencyvalue.model";
+import { Payment } from 'src/app/shared/models/payment.model';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -34,26 +36,43 @@ export class CardComponent implements OnInit {
   pageSize: any;
   cardIdOrder: string = 'desc';
   sortByCardId: boolean = false;
+  userIdOrder: string = 'desc';
+  sortByUserId: boolean = false;
   balanceOrder: string = 'desc';
   sortByBalance: boolean = false;
+  nicknameOrder: string = 'desc'
+  sortByNickname: boolean = false;
   createDateOrder: string = 'desc';
   sortByCreateDate: boolean = false;
   sortBy: string[] = [];
   predicate: string = '?page=0&&size=5';
   searchCriteria: string = '';
   selectedCardType!: any;
+  width!: number;
 
   ngOnInit(): void {
-    this.pageSize = 5;
-    this.pageIndex = 0;
-    this.totalItems = 0;
+    this.width = window.innerWidth;
+    this.pageSize=5;
+    this.pageIndex=0;
+    this.totalItems=0;
     this.loadCardTypes();
     this.loadCards();
     this.initializeForms();
   }
 
+  @HostListener('window:resize', [])
+  private onResize() {
+    this.width = window.innerWidth;
+    console.log('resized to: ' + this.width)
+  }
+
   refresh() {
     this.predicate = '?page=0&&size=5';
+    this.sortByBalance = false;
+    this.sortByCardId = false;
+    this.sortByCreateDate = false;
+    this.sortByNickname = false;
+    this.sortByUserId = false;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
@@ -62,33 +81,34 @@ export class CardComponent implements OnInit {
 
   loadCards(): any {
     this.httpService
-      .getAll('http://localhost:9001/cards' + this.predicate)
-      .subscribe((response) => {
-        let arr: any;
-        arr = response as Card;
-        this.totalItems = arr.totalElements;
-        for (let obj of arr.content) {
-          let c = new Card(obj.cardId, obj.userId, obj.cardType, new CurrencyValue(obj.isNegative, obj.balance.dollars, obj.balance.cents),
-            obj.cardNumber, obj.interestRate, obj.createDate, obj.nickname, obj.billCycleLength, obj.expireDate);
-          console.log(c);
-          this.cards.push(c);
-        }
-      }, (err) => {
-        console.error("Failed to retrieve cards", err);
-        this.errorPresent = true;
-        this.errorCode = err.status;
-        this.errorText = err.statusText;
-        if (err.status === 503) {
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        }
-      })
+    .getAll(`${environment.baseUrl}${environment.cardsEndpoint}` + this.predicate)
+    .subscribe((response) => {
+      let arr: any;
+      arr = response as Card;
+      this.totalItems = arr.totalElements;
+      for(let obj of arr.content){
+        console.log(obj)
+        let c = new Card(obj.id, obj.user.userId, obj.cardType, obj.payment, new CurrencyValue(obj.isNegative, obj.balance.dollars, obj.balance.cents),
+          obj.cardNumber, obj.interestRate, obj.createDate, obj.nickname, obj.billCycleLength, obj.expireDate);
+        console.log(c);
+        this.cards.push(c);
+      }
+    }, (err) => {
+      this.errorPresent = true;
+      this.errorCode = err.status;
+      this.errorText = err.statusText;
+      this.errorMessage = err.message;
+      if (this.errorPresent) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
+    })
   }
 
   loadCardTypes(): any {
     this.httpService
-      .getAll('http://localhost:9001/cardtypes/')
+      .getAll(`${environment.baseUrl}${environment.cardTypesEndpoint}/`)
       .subscribe((response) => {
         let arr: any;
         arr = response;
@@ -114,7 +134,7 @@ export class CardComponent implements OnInit {
   }
 
   deleteCard(id: String) {
-    this.httpService.deleteById('http://localhost:9001/cards/' + id).subscribe((result) => {
+    this.httpService.deleteById(`${environment.baseUrl}${environment.cardsEndpoint}` + id).subscribe((result) => {
       this.cards.length = 0;
       this.loadCards();
     })
@@ -132,7 +152,7 @@ export class CardComponent implements OnInit {
 
       const body = JSON.stringify(c);
 
-      this.httpService.create('http://localhost:9001/cards/register/' + this.cardForm.controls['userId'].value, body).subscribe((result) => {
+      this.httpService.create(`${environment.baseUrl}${environment.cardsEndpoint}/register/` + this.cardForm.controls['userId'].value, body).subscribe((result) => {
         this.cards.length = 0;
         this.loadCards();
         this.initializeForms();
@@ -143,6 +163,7 @@ export class CardComponent implements OnInit {
         this.cardForm.controls['cardId'].value,
         this.cardForm.controls['userId'].value,
         this.cardForm.controls['cardType'].value,
+        new Payment('x', new CurrencyValue(false, 0, 0), new CurrencyValue(false, 0, 0), new Date, new Date, false, '0'),
         this.cardForm.controls['balance'].value,
         this.cardForm.controls['cardNumber'].value,
         this.cardForm.controls['interestRate'].value,
@@ -153,7 +174,7 @@ export class CardComponent implements OnInit {
 
       const body = JSON.stringify(c);
 
-      this.httpService.update('http://localhost:9001/cards/', body).subscribe((result) => {
+      this.httpService.update(`${environment.baseUrl}${environment.cardsEndpoint}/`, body).subscribe((result) => {
         this.cards.length = 0;
         this.loadCards();
         this.initializeForms();
@@ -247,6 +268,12 @@ export class CardComponent implements OnInit {
     } else if (field === 'createDate') {
       this.sortByCreateDate = true;
       this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'userId'){
+      this.sortByUserId = true;
+      this.userIdOrder = this.userIdOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'nickname'){
+      this.sortByNickname = true;
+      this.nicknameOrder = this.nicknameOrder === 'desc' ? 'asc' : 'desc';
     }
 
     this.updatePage();
@@ -255,14 +282,20 @@ export class CardComponent implements OnInit {
   private assembleQueryParams() {
     this.sortBy = [];
 
-    if (this.sortByCardId) {
-      this.sortBy.push('cardId,' + this.cardIdOrder);
+    if(this.sortByCardId){
+      this.sortBy.push('id,' + this.cardIdOrder);
     }
-    if (this.sortByBalance) {
-      this.sortBy.push('balance,' + this.balanceOrder);
+    if(this.sortByBalance){
+      this.sortBy.push('balance_dollars,' + this.balanceOrder);
     }
     if (this.sortByCreateDate) {
       this.sortBy.push('createDate,' + this.createDateOrder);
+    }
+    if(this.sortByUserId){
+      this.sortBy.push('user_userId,' + this.userIdOrder);
+    }
+    if(this.sortByNickname){
+      this.sortBy.push('nickname,' + this.nicknameOrder);
     }
   }
 
@@ -281,6 +314,7 @@ export class CardComponent implements OnInit {
 
   updatePage() {
     this.cards = [];
+    this.onResize();
 
     this.assemblePredicate();
 
