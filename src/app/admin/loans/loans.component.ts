@@ -15,6 +15,10 @@ import { environment } from "src/environments/environment";
   templateUrl: './loans.component.html',
   styleUrls: ['./loans.component.css'],
 })
+/**
+ * The loan Component allows admins to view all loans, create new ones, delete existing ones, and update them.
+ * It uses loan.component.html to display everything and loan.component.css for styling
+ */
 export class LoanComponent implements OnInit {
   loans: Loan[] = new Array();
   users: User[] = new Array();
@@ -107,6 +111,12 @@ export class LoanComponent implements OnInit {
     console.log('resized to: ' + this.width)
   }
 
+  /**
+   * This function adds sorting fields to the sortBy array by enabling them here
+   * They will be assembled later in the assembleQueryParams function
+   * 
+   * @param field The sorting to add
+   */
   addToSortBy(field: string) {
     console.log('add to sort by: ', field)
     if(field === 'Id'){
@@ -162,6 +172,9 @@ export class LoanComponent implements OnInit {
     this.updatePage();
   }
 
+  /**
+   * This function builds the query aspect of the url predicate out of the enabled fields
+   */
   private assembleQueryParams() {
     this.sortBy = [];
 
@@ -206,6 +219,9 @@ export class LoanComponent implements OnInit {
     }
   }
 
+  /**
+   * This function assembles the url predicate out of the state held pageable information
+   */
   private assemblePredicate(){
     this.assembleQueryParams()
 
@@ -215,6 +231,9 @@ export class LoanComponent implements OnInit {
     console.log('assembled predicate: ' + this.predicate)
   }
 
+   /**
+   * This function calls all the important functions in the order they are necessary for loading the card list.
+   */
   updatePage(){
     this.loans = [];
 
@@ -234,6 +253,9 @@ export class LoanComponent implements OnInit {
     this.update();
   }
 
+  /**
+   * This function sends the loan request and user Id to the back end so it can run a credit check and caculate the proper amount to offer.
+   */
   async creditReport() {
     console.log('sending credit report ...')
     var loanType = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.loanTypesEndpoint}/new`);
@@ -265,6 +287,13 @@ export class LoanComponent implements OnInit {
     }
   }
 
+  /**
+   * This function will build a list of aprs starting from 0.99% and going up to the inbound parameter, by increments of 1%
+   * It is used to avoid having too many predetermied lists in the code.
+   * 
+   * @param props The cap for the apr 
+   * @returns An array containing the aprs
+   */
   setAPR(props: number) {
     var l: number[] = []
     for (var i = 0; i < props; i++) {
@@ -273,10 +302,19 @@ export class LoanComponent implements OnInit {
     return l;
   }
 
+  /**
+   * This function is a simple setter for the searchCriteria string. 
+   * Not to be confused with search(), which actually sends the updated search term
+   * 
+   * @param search The inbound search term
+   */
   setSearch(search: string) {
     this.searchCriteria = search;
   }
 
+    /**
+   * This function will reset all search and sort information to default, and calls the list again.
+   */
   refresh() {
     this.sortByUserId = false;
     this.sortById = false;
@@ -300,6 +338,10 @@ export class LoanComponent implements OnInit {
     this.update();
   }
 
+  /**
+   * This is the primary function that retrieves loans from the back end.
+   * It will also set any errors it receives and display them under the table
+   */
   update() {
     this.loans = [];
     this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
@@ -353,6 +395,12 @@ export class LoanComponent implements OnInit {
     })
   }
 
+  /**
+   * This function will completely remove a loan from the database.
+   * It should not be used unless the loan is backed up to a NOSQL database
+   * 
+   * @param id The loan to remove.
+   */
   deleteLoan(id: String) {
     if (window.confirm('Are you sure you want to remove: ' + id + '? It will be removed from the database completely.')) {
       this.httpService.deleteById(`${environment.baseUrl}${environment.loansEndpoint}/` + id).subscribe((result) => {
@@ -363,6 +411,10 @@ export class LoanComponent implements OnInit {
     }
   };
 
+  /**
+   * This function asks the back-end to check the loan for late fees. 
+   * It is only accessed by the Modal, so it needs to props to work.
+   */
   async lateFeeCheck() {
     let body = JSON.parse(JSON.stringify(this.activeLoan));
     const r = await this.httpService.update(`${environment.baseUrl}${environment.loansEndpoint}/late`, body)
@@ -371,6 +423,9 @@ export class LoanComponent implements OnInit {
     window.location.reload();
   }
 
+  /**
+   * This function will read the modal's input to make sure it has been properly filled out.
+   */
   formFilledCheck() {
     if (this.updateLoanForm.controls['userId'].value &&
       this.updateLoanForm.controls['typeName'].value &&
@@ -393,7 +448,6 @@ export class LoanComponent implements OnInit {
         '\principal: ', this.updateLoanForm.controls['principal'].value,
         '\nnegative: ', this.updateLoanForm.controls['negative'].value &&
       '\nmonths: ', this.updateLoanForm.controls['numMonths'].value,
-        // this.updateLoanForm.controls['description'].value,
         '\ncreate: ', this.updateLoanForm.controls['createDate'].value,
         '\nnext: ', this.updateLoanForm.controls['nextDueDate'].value,
         '\nprevious: ', this.updateLoanForm.controls['previousDueDate'].value)
@@ -401,6 +455,10 @@ export class LoanComponent implements OnInit {
     }
   }
 
+  /**
+   * This function will save a new loan to the database.
+   * It is also used to update existing loans.
+   */
   async saveLoan() {
     if (this.formFilledCheck()) {
       console.log('form filled')
@@ -491,6 +549,9 @@ export class LoanComponent implements OnInit {
     }
   }
 
+  /**
+   * This function is a setter for the LoanType object using the type name found in the modal
+   */
   setType() {
     console.log('set type...')
     switch (this.updateLoanForm.controls['typeName'].value) {
@@ -515,6 +576,12 @@ export class LoanComponent implements OnInit {
     this.updateLoanForm.controls['apr'].setValue(this.curLoanApr[0])
   }
 
+  /**
+   * This function will open the loanModal for either creation or editing of a loan
+   * 
+   * @param content the loanModal
+   * @param u The loan
+   */
   async open(content: any, u: Loan | null) {
     if (u !== null) {
       console.log('editing existing loan...', u)
