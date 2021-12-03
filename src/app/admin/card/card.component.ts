@@ -17,6 +17,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.css']
 })
+
 /**
  * The card Component allows admins to view all cards, create new ones, delete existing ones, and update them.
  * It uses card.component.html to display everything and card.component.css for styling
@@ -75,6 +76,7 @@ export class CardComponent implements OnInit {
    */
   refresh() {
     this.predicate = '?page=0&&size=5';
+    this.searchCriteria = '';
     this.sortByBalance = false;
     this.sortByCardId = false;
     this.sortByCreateDate = false;
@@ -88,9 +90,10 @@ export class CardComponent implements OnInit {
 
   /**
    * This is the primary function for loading cards from the back end.
-   * It will also set any errors it receives from the back-end
+   * It will also set any errors it receives and display them under the table
    */
   loadCards(): any {
+    this.cards = [];
     this.httpService
     .getAll(`${environment.baseUrl}${environment.cardsEndpoint}` + this.predicate)
     .subscribe((response) => {
@@ -131,6 +134,7 @@ export class CardComponent implements OnInit {
           let c = new Cardtype(obj.id, obj.typeName, obj.baseInterestRate);
           this.cardtypes.push(c);
         }
+        console.log('card types: ', this.cardtypes)
       }, (err) => {
         this.errorPresent = true;
         this.errorCode = err.status;
@@ -379,6 +383,9 @@ export class CardComponent implements OnInit {
     this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
   }
 
+  /**
+   * ngModel is setting the search criteria, so searching just needs to refresh the page withe the updated predicate
+   */
   search() {
     this.updatePage();
 

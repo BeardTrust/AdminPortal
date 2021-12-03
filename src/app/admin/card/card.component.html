@@ -89,7 +89,7 @@
             </div>
             <div class="input-group mb-2">
               <label class="input-group-text" for="cardType">Card Type: </label>
-              <select class="form-select" id="cardType" formControlName="cardType" [(ngModel)]="selectedCardType">
+              <select class="form-select" id="cardType" formControlName="cardType">
                 <option *ngFor="let c of cardtypes;" value="{{ c.$id }}">
                   {{ c.$typeName }}: {{ c.$baseInterestRate }}
                 </option>

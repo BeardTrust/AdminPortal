@@ -10,7 +10,7 @@
         </button>
         <input type="inpu-group-text" id="searchBar" class="form-control col-sm-2 col-lg-3" [(ngModel)]="searchCriteria"
             (keydown.enter)="search()" placeholder="Search" aria-label="Search" aria-describedby="searchButton">
-        <button type="input" class="btn btn-outline-secondary btn-small" (click)="loadUsers()">Search</button>
+        <button type="input" class="btn btn-outline-secondary btn-small" (click)="search()">Search</button>
     </div>
     <table class='table table-striped table-hover table-active border border-secondary shadow-lg'>
         <thead>
