@@ -16,6 +16,10 @@ import { environment } from "src/environments/environment";
   styleUrls: ['./accounts.component.css'],
   
 })
+/**
+ * The account Component allows admins to view all accounts, create new ones, delete existing ones, and update them.
+ * It uses account.component.html to display everything and account.component.css for styling
+ */
 export class AccountComponent implements OnInit {
   accounts: Account[] = new Array();
   users: User[] = new Array();
@@ -70,18 +74,6 @@ export class AccountComponent implements OnInit {
     totalPages: number
   } = { status: "notYetPending", content: [], totalElements: 0, totalPages: 0 };
 
-  account = [
-    { name: "user", displayName: "User ID", class: "col-1"},
-    { name: "id", displayName: "Account ID", class: "col-1"},
-    { name: "activeStatus", displayName: "Is Active", class: "col-1"},
-    { name: "balance", displayName: "Balance", class: "col-1"},
-    { name: "createDate", displayName: "Date Created", class: "col-1"},
-    { name: "interest", displayName: "Interest Rate", class: "col-1"},
-    { name: "nickname", displayName: "Nickname", class: "col-1"},
-    // { name: "description", displayName: "Description", class: "col-3" },
-    { name: "type", displayName: "Account Type", class: "col-1"}
-  ];
-
 
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) { }
   ngOnInit(): void {
@@ -109,6 +101,12 @@ export class AccountComponent implements OnInit {
     this.update();
   }
 
+  /**
+   * This function adds sorting fields to the sortBy array by enabling them here
+   * They will be assembled later in the assembleQueryParams function
+   * 
+   * @param field The sorting to add
+   */
   addToSortBy(field: string) {
     console.log('add to sort by: ', field)
     if(field === 'Id'){
@@ -140,6 +138,9 @@ export class AccountComponent implements OnInit {
     this.updatePage();
   }
 
+   /**
+   * This function builds the query aspect of the url predicate out of the enabled fields
+   */
   private assembleQueryParams() {
     this.sortBy = [];
 
@@ -181,6 +182,14 @@ export class AccountComponent implements OnInit {
     this.searchCriteria = search;
   }
 
+  /**
+   *  This function stores and returns the ints of an account type's title string 
+   * for the purposes of database interaction
+   * 
+   * @param type The title to return the number of
+   * 
+   * @returns a number 1-9
+   */
   getTypeId(type: string): number {
     switch (type) {
       case 'SuperSaver':
@@ -201,6 +210,9 @@ export class AccountComponent implements OnInit {
     // return Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8)
   }
 
+  /**
+   * This function requests a new account from the back-end for it to build off of when creating a new one.
+   */
   async requestAccount() {
     if (this.updateAccountForm.controls['userId'].value &&
     this.updateAccountForm.controls['interest'].value &&
@@ -231,8 +243,10 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function will reset all search and sort information to default, and calls the list again.
+   */
   refresh() {
-    this.predicate = '?pageNum=' + this.pageIndex + '&&pageSize=' + this.pageSize;
     this.searchCriteria = "";
     this.sortByUserId = false;
     this.sortById = false;
@@ -246,9 +260,14 @@ export class AccountComponent implements OnInit {
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
+    this.predicate = '?pageNum=' + this.pageIndex + '&&pageSize=' + this.pageSize;
     this.update();
   }
 
+  /**
+   * This is the primary function that retrieves accounts from the back end.
+   * It will also set any errors it receives and display them under the table
+   */
   update() {
     console.log('outbound pred: ', this.predicate)
     this.accounts = [];
@@ -295,6 +314,11 @@ export class AccountComponent implements OnInit {
     })
   }
 
+  /**
+   * This function sends an account id to the back-end to try and deactivate (not remove) it.
+   * 
+   * @param id The id of the account to deactivate. 
+   */
   deactivateAccount(id: String) {
     if (window.confirm('Are you sure you want to remove: ' + id + '? It will be removed from the database completely.')) {
       this.httpService.deleteById(`${environment.baseUrl}${environment.accountsEndpoint}/` + id).subscribe((result) => {
@@ -319,6 +343,9 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function saves a new account to the database
+   */
   saveAccount() {
     if (this.formFilledCheck()) {
       console.log('active account: ', this.activeAccount)
@@ -388,6 +415,12 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function opens the accountModal for the purposes of making a new account and/or editing an existing one.
+   * 
+   * @param content The accountModal to use
+   * @param c The account being made or edited
+   */
   async open(content: any, u: Account | null) {
     if (u !== null) {
       this.activeAccount = u;
