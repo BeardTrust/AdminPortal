@@ -1,8 +1,10 @@
-import { ThisReceiver } from "@angular/compiler";
 import { CurrencyValue } from "./currencyvalue.model";
 import { User } from "./user.model";
 import { AccountType } from "./accounttype.model";
 
+/**
+ * The Account model for parsing AccountEntitys from the back-end
+ */
 export class Account {
     user: User;
     id: String;

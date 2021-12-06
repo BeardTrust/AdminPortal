@@ -10,7 +10,7 @@
  * @author Matthew Crowell <Matthew.Crowell@Smoothstack.com>
  */
 export class CurrencyValue{
-  private negative: boolean;
+   negative: boolean;
    dollars: number;
    cents: number;
 

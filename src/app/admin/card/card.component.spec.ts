@@ -13,6 +13,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { CardComponent } from './card.component';
+import { environment } from 'src/environments/environment';
 
 describe('CardComponent', () => {
   let component: CardComponent;
@@ -50,7 +51,7 @@ describe('CardComponent', () => {
       status: 200,
       statusText: 'OK'
     });
-    const call = cardService.expectOne('http://localhost:9001/cards?page=0&&size=5');
+    const call = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}?page=0&&size=5`);
     expect(call.request.method).toEqual('GET');
     call.flush(response);
     //cardService.verify();
@@ -65,8 +66,8 @@ describe('CardComponent', () => {
       statusText: 'OK'
     });
 
-    //const call = cardService.expectOne('http://localhost:9001/cards/');
-    const call2 = cardService.expectOne('http://localhost:9001/cardtypes/');
+    //const call = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/`);
+    const call2 = cardService.expectOne(`${environment.baseUrl}${environment.cardTypesEndpoint}/`);
     //expect(call.request.method).toEqual('GET');
     expect(call2.request.method).toEqual('GET');
     //call.flush(response);
@@ -82,8 +83,8 @@ describe('CardComponent', () => {
       statusText: 'OK'
     });
 
-    const call1 = cardService.expectOne('http://localhost:9001/cards/1');
-    //const call2 = cardService.expectOne('http://localhost:9001/cards/');
+    const call1 = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/1`);
+    //const call2 = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/`);
     expect(call1.request.method).toEqual('DELETE');
     //expect(call2.request.method).toEqual('GET');
     call1.flush(response);
@@ -113,7 +114,7 @@ describe('CardComponent', () => {
       statusText: 'OK'
     });
 
-    const call = cardService.expectOne('http://localhost:9001/cards/');
+    const call = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/`);
     expect(call.request.method).toEqual('PUT');
     call.flush(response);
 
@@ -139,7 +140,7 @@ describe('CardComponent', () => {
       statusText: 'OK'
     });
 
-    const call = cardService.expectOne('http://localhost:9001/cards/register/234568-890145');
+    const call = cardService.expectOne(`${environment.baseUrl}${environment.cardsEndpoint}/register/234568-890145`);
     expect(call.request.method).toEqual('POST');
     call.flush(response);
 

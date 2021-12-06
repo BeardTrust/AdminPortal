@@ -3,7 +3,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { PageEvent } from '@angular/material/paginator';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from '../../shared/services/http.service';
-import { Loantype } from '../../shared/models/loantype.model';
+import { LoanType } from '../../shared/models/loanType.model';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-loantype',
@@ -16,7 +17,7 @@ export class LoantypeComponent implements OnInit {
 
   //constructor(private http: HttpClient, private fb: FormBuilder, private modalService: NgbModal) { }
 
-  loantypes: Loantype[] = new Array(); 
+  loantypes: LoanType[] = new Array(); 
   loanTypeForm!: FormGroup;
   modalRef!: NgbModalRef;
   errorMessage: any;
@@ -46,14 +47,14 @@ export class LoantypeComponent implements OnInit {
 
   loadLoanTypes(): any{
     this.httpService
-    .getAll('http://localhost:9001/loantypes' + this.predicate)
+    .getAll(`${environment.baseUrl}${environment.loanTypesEndpoint}` + this.predicate)
     .subscribe((response: any) => {
       let arr: any;
-      arr = response as Loantype;
+      arr = response as LoanType;
       this.totalItems = arr.totalElements;
       for(let obj of arr.content){
-        let c = new Loantype(obj.typeName, obj.description,
-          obj.apr, obj.numMonths, obj.id);
+        let c = new LoanType(obj.id, obj.activeStatus, obj.createDate,
+           obj.numMonths, obj.description, obj.typeName, obj.apr);
         this.loantypes.push(c);
       }
     })
@@ -72,33 +73,38 @@ export class LoantypeComponent implements OnInit {
 
   saveLoanType(): any{
     if(this.createNew){
-      let lt = new Loantype(
-        this.loanTypeForm.controls['typeName'].value,
+      let lt = new LoanType(
+        '',
+        true,
+        new Date(),
+        this.loanTypeForm.controls['numMonths'].value,
         this.loanTypeForm.controls['description'].value,
-        this.loanTypeForm.controls['apr'].value,
-        this.loanTypeForm.controls['numMonths'].value
+        this.loanTypeForm.controls['typeName'].value,
+        this.loanTypeForm.controls['apr'].value
       )
 
       const body = JSON.stringify(lt);
 
-      this.httpService.create('http://localhost:9001/loantypes', body).subscribe((result)=> {
+      this.httpService.create(`${environment.baseUrl}${environment.loanTypesEndpoint}`, body).subscribe((result)=> {
         this.loantypes.length = 0;
         this.loadLoanTypes();
         this.initializeForms();
       });
     }
     else{
-      let lt = new Loantype(
-        this.loanTypeForm.controls['typeName'].value,
-        this.loanTypeForm.controls['description'].value,
-        this.loanTypeForm.controls['apr'].value,
+      let lt = new LoanType(
+        '',
+        true,
+        new Date(),
         this.loanTypeForm.controls['numMonths'].value,
-        this.loanTypeForm.controls['id'].value
+        this.loanTypeForm.controls['description'].value,
+        this.loanTypeForm.controls['typeName'].value,
+        this.loanTypeForm.controls['apr'].value
       )
 
       const body = JSON.stringify(lt);
 
-      this.httpService.update('http://localhost:9001/loantypes', body).subscribe((result) =>{
+      this.httpService.update(`${environment.baseUrl}${environment.loanTypesEndpoint}`, body).subscribe((result) =>{
         this.loantypes.length = 0;
         this.loadLoanTypes();
         this.initializeForms();
@@ -107,13 +113,13 @@ export class LoantypeComponent implements OnInit {
   }
 
   deleteLoanType(id: String){
-    this.httpService.deleteById('http://localhost:9001/loantypes/' + id).subscribe((result) => {
+    this.httpService.deleteById(`${environment.baseUrl}${environment.loanTypesEndpoint}/` + id).subscribe((result) => {
       this.loantypes.length = 0;
       this.loadLoanTypes();
     })
   }
 
-  async open(content: any, lt: Loantype | null){
+  async open(content: any, lt: LoanType | null){
     this.initializeForms();
     if (lt !== null){
       this.createNew = false;

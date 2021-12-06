@@ -2,6 +2,10 @@ import {Injectable} from '@angular/core';
 import {HttpService} from "@services/http.service";
 
 @Injectable({providedIn: 'root'})
+
+/**
+ * The auth service manages login and logout processing and token storage
+ */
 export class AuthService {
   isLoggedIn: boolean;
 

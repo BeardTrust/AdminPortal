@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators, } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "src/app/shared/services/http.service";
@@ -7,6 +7,7 @@ import { User } from "src/app/shared/models/user.model";
 import { PageEvent } from "@angular/material/paginator";
 import { CurrencyValue } from "../../shared/models/currencyvalue.model";
 import { AccountType } from "src/app/shared/models/accounttype.model";
+import { environment } from "src/environments/environment";
 
 
 @Component({
@@ -15,6 +16,10 @@ import { AccountType } from "src/app/shared/models/accounttype.model";
   styleUrls: ['./accounts.component.css'],
   
 })
+/**
+ * The account Component allows admins to view all accounts, create new ones, delete existing ones, and update them.
+ * It uses account.component.html to display everything and account.component.css for styling
+ */
 export class AccountComponent implements OnInit {
   accounts: Account[] = new Array();
   users: User[] = new Array();
@@ -25,6 +30,9 @@ export class AccountComponent implements OnInit {
 
   modalRef!: NgbModalRef;
   errorMessage: any;
+  errorPresent: boolean = false;
+  errorCode: number = 0;
+  errorText!: any;
   closeResult: any;
   modalHeader!: String;
   totalItems: any;
@@ -32,13 +40,26 @@ export class AccountComponent implements OnInit {
   pageSize: any;
   editing!: boolean;
   depositReady: boolean = false;
-
-
-  @Input() search!: string;
-  @Output() searchChange = new EventEmitter<string>();
-
-  @Input() sort!: string;
-  @Output() sortChange = new EventEmitter<number>();
+  width!: number;
+  sortByUserId: boolean = false;
+  userIdOrder: string = 'desc'
+  sortById: boolean = false;
+  idOrder: string = 'desc';
+  sortByBalance: boolean = false;
+  balanceOrder: string = 'desc';
+  sortByCreateDate: boolean = false;
+  createDateOrder: string = 'desc';
+  sortByNickname: boolean = false;
+  nicknameOrder: string = 'desc';
+  sortByType: boolean = false;
+  typeOrder: string = 'desc';
+  sortByIsActive: boolean = false;
+  isActiveOrder: string = 'desc';
+  sortByInterest: boolean = false;
+  interestOrder: string = 'desc';
+  predicate: string = '?pageNum=0&&pageSize=5';
+  searchCriteria: string = '';
+  sortBy: string[] = [];
 
   @Input() asc!: boolean;
   @Output() ascChange = new EventEmitter<number>();
@@ -53,25 +74,20 @@ export class AccountComponent implements OnInit {
     totalPages: number
   } = { status: "notYetPending", content: [], totalElements: 0, totalPages: 0 };
 
-  account = [
-    { name: "user", displayName: "User ID", class: "col-2" },
-    { name: "id", displayName: "Account ID", class: "col-3" },
-    { name: "activeStatus", displayName: "Is Active", class: "col-3" },
-    { name: "balance", displayName: "Balance", class: "col-2" },
-    { name: "createDate", displayName: "Date Created", class: "col-2" },
-    { name: "interest", displayName: "Interest Rate", class: "col-2" },
-    { name: "nickname", displayName: "Nickname", class: "col-3" },
-    // { name: "description", displayName: "Description", class: "col-3" },
-    { name: "type", displayName: "Account Type", class: "col-3" }
-  ];
-
 
   constructor(private httpService: HttpService, private fb: FormBuilder, private modalService: NgbModal) { }
   ngOnInit(): void {
+    this.width = window.innerWidth;
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
     this.update();
+  }
+
+  @HostListener('window:resize', [])
+  private onResize() {
+    this.width = window.innerWidth;
+    console.log('resized to: ' + this.width)
   }
 
   onChangePage(pe: PageEvent) {
@@ -81,32 +97,99 @@ export class AccountComponent implements OnInit {
       this.pageSize = pe.pageSize;
     }
     this.accounts = new Array();
+    this.assemblePredicate();
     this.update();
   }
 
-  setSort(property: string) {
-    if (this.asc && this.sort === property) {
-      this.asc = false;
-      this.dir = "desc";
-      this.update();
-    } else {
-      console.log('asc true')
-      if (property !== 'firstName' && property !== 'lastName') {
-        this.sort = property;
-        this.asc = true;
-        this.dir = "asc";
-        this.update();
-      }
-      else {
-        alert('Cannot sort by name.')
-      }
+  /**
+   * This function adds sorting fields to the sortBy array by enabling them here
+   * They will be assembled later in the assembleQueryParams function
+   * 
+   * @param field The sorting to add
+   */
+  addToSortBy(field: string) {
+    console.log('add to sort by: ', field)
+    if(field === 'Id'){
+      this.sortById = true;
+      this.idOrder = this.idOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'balance') {
+      this.sortByBalance = true;
+      this.balanceOrder = this.balanceOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'createDate'){
+      this.sortByCreateDate = true;
+      this.createDateOrder = this.createDateOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'userId'){
+      this.sortByUserId = true;
+      this.userIdOrder = this.userIdOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'nickname'){
+      this.sortByNickname = true;
+      this.nicknameOrder = this.nicknameOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'interest'){
+      this.sortByInterest= true;
+      this.interestOrder = this.interestOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'type'){
+      this.sortByType = true;
+      this.typeOrder = this.typeOrder === 'desc' ? 'asc' : 'desc';
+    } else if(field === 'isActive'){
+      this.sortByIsActive = true;
+      this.isActiveOrder = this.isActiveOrder === 'desc' ? 'asc' : 'desc';
+    }
+
+    this.updatePage();
+  }
+
+   /**
+   * This function builds the query aspect of the url predicate out of the enabled fields
+   */
+  private assembleQueryParams() {
+    this.sortBy = [];
+
+    if(this.sortById){
+      this.sortBy.push('id,' + this.idOrder);
+    }
+    if(this.sortByBalance){
+      this.sortBy.push('balance_dollars,' + this.balanceOrder);
+    }
+    if(this.sortByCreateDate){
+      this.sortBy.push('createDate,' + this.createDateOrder);
+    }
+    if(this.sortByUserId){
+      this.sortBy.push('user_userId,' + this.userIdOrder);
+    }
+    if(this.sortByNickname){
+      this.sortBy.push('nickname,' + this.nicknameOrder);
+    }
+    if(this.sortByType){
+      this.sortBy.push('type_name,' + this.typeOrder);
+    }
+    if(this.sortByIsActive){
+      this.sortBy.push('activeStatus,' + this.isActiveOrder);
+    }
+    if(this.sortByInterest){
+      this.sortBy.push('interest,' + this.interestOrder);
     }
   }
 
-  setSearch(search: string) {
-    this.search = search;
+  private assemblePredicate(){
+    this.assembleQueryParams()
+
+    this.predicate = "?pageNum=" + this.pageIndex + "&&pageSize=" + this.pageSize;
+    this.predicate += this.sortBy.length > 0 ? '&&sortBy=' + this.sortBy : '';
+    this.predicate += this.searchCriteria.length > 0 ? "&&search=" + this.searchCriteria : '';
   }
 
+  setSearch(search: string) {
+    this.searchCriteria = search;
+  }
+
+  /**
+   *  This function stores and returns the ints of an account type's title string 
+   * for the purposes of database interaction
+   * 
+   * @param type The title to return the number of
+   * 
+   * @returns a number 1-9
+   */
   getTypeId(type: string): number {
     switch (type) {
       case 'SuperSaver':
@@ -127,6 +210,9 @@ export class AccountComponent implements OnInit {
     // return Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8) + '-' + Math.random().toString(16).substr(2, 8)
   }
 
+  /**
+   * This function requests a new account from the back-end for it to build off of when creating a new one.
+   */
   async requestAccount() {
     if (this.updateAccountForm.controls['userId'].value &&
     this.updateAccountForm.controls['interest'].value &&
@@ -144,7 +230,7 @@ export class AccountComponent implements OnInit {
         new Date(expire),
         this.updateAccountForm.value.nickname)
       this.depositReady = true;
-      const a = await this.httpService.getNewUUID('http://localhost:9001/accounts/new', this.updateAccountForm.controls['userId'].value)
+      const a = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.accountsEndpoint}/new`, this.updateAccountForm.controls['userId'].value)
       console.log('account received: ', a)
       this.activeAccount = a;
       console.log('active account: ', this.activeAccount)
@@ -157,20 +243,36 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function will reset all search and sort information to default, and calls the list again.
+   */
   refresh() {
-    this.search = "";
-    this.sort = 'Id';
+    this.searchCriteria = "";
+    this.sortByUserId = false;
+    this.sortById = false;
+    this.sortByIsActive = false;
+    this.sortByBalance = false;
+    this.sortByCreateDate = false;
+    this.sortByInterest = false;
+    this.sortByNickname = false;
+    this.sortByType = false;
     this.dir = 'asc';
     this.totalItems = 0;
     this.pageIndex = 0;
     this.pageSize = 5;
+    this.predicate = '?pageNum=' + this.pageIndex + '&&pageSize=' + this.pageSize;
     this.update();
   }
 
+  /**
+   * This is the primary function that retrieves accounts from the back end.
+   * It will also set any errors it receives and display them under the table
+   */
   update() {
+    console.log('outbound pred: ', this.predicate)
     this.accounts = [];
     this.data = { status: "pending", content: [], totalElements: 0, totalPages: 0 };
-    this.httpService.getAccounts(this.pageIndex, this.pageSize, this.sort, this.dir, this.search)
+    this.httpService.getAll(`${environment.baseUrl}${environment.accountsEndpoint}/all` + this.predicate)
       .subscribe((res) => {
         console.log(res);
         let arr: any;
@@ -188,16 +290,15 @@ export class AccountComponent implements OnInit {
           totalPages: arr.totalPages
         };
       }, (err) => {
-        console.error("Failed to retrieve accounts", err);
-        console.log('error status: ', err.status)
-        this.data = { status: "error", content: [], totalElements: 0, totalPages: 0 };
-        if (err.status === 503) {
-          setTimeout(() => {
-            console.log('sleeping...')
-            window.alert('Servers did not respond. They may be down, or your connection may be interrupted. Page will refresh until a connedction can be established')
-            window.location.reload();
-          }, 5000);
-        }
+        this.errorPresent = true;
+      this.errorCode = err.status;
+      this.errorText = err.statusText;
+      this.errorMessage = err.message;
+      if (this.errorPresent) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
       })
   }
 
@@ -213,9 +314,14 @@ export class AccountComponent implements OnInit {
     })
   }
 
+  /**
+   * This function sends an account id to the back-end to try and deactivate (not remove) it.
+   * 
+   * @param id The id of the account to deactivate. 
+   */
   deactivateAccount(id: String) {
     if (window.confirm('Are you sure you want to remove: ' + id + '? It will be removed from the database completely.')) {
-      this.httpService.deleteById("http://localhost:9001/accounts/" + id).subscribe((result) => {
+      this.httpService.deleteById(`${environment.baseUrl}${environment.accountsEndpoint}/` + id).subscribe((result) => {
         console.log(result);
         this.users.length = 0;
       });
@@ -237,6 +343,9 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function saves a new account to the database
+   */
   saveAccount() {
     if (this.formFilledCheck()) {
       console.log('active account: ', this.activeAccount)
@@ -258,6 +367,7 @@ export class AccountComponent implements OnInit {
         userId: a.user.userId,
         balance: a.$balance,
         createDate: a.$createDate,
+        type_id: this.activeAccountType.$id,
         type: {
           id: this.activeAccountType.$id,
           name: this.activeAccountType.name,
@@ -280,14 +390,14 @@ export class AccountComponent implements OnInit {
         window.confirm('Save Acount ' + this.updateAccountForm.controls['nickname'].value + '?');
       }
       if (!this.editing) {
-        this.httpService.create('http://localhost:9001/accounts', modelBody).subscribe((result) => {
+        this.httpService.create(`${environment.baseUrl}${environment.accountsEndpoint}`, modelBody).subscribe((result) => {
           console.log("creating " + result);
           this.accounts.length = 0;
           this.update()
           window.location.reload();
         });
       } else {
-        this.httpService.update('http://localhost:9001/accounts', body).subscribe((result) => {
+        this.httpService.update(`${environment.baseUrl}${environment.accountsEndpoint}`, body).subscribe((result) => {
           console.log("updating " + result);
           this.accounts.length = 0;
           this.update()
@@ -305,6 +415,12 @@ export class AccountComponent implements OnInit {
     }
   }
 
+  /**
+   * This function opens the accountModal for the purposes of making a new account and/or editing an existing one.
+   * 
+   * @param content The accountModal to use
+   * @param c The account being made or edited
+   */
   async open(content: any, u: Account | null) {
     if (u !== null) {
       this.activeAccount = u;
@@ -331,7 +447,7 @@ export class AccountComponent implements OnInit {
     } else {
       this.editing = false;
       this.modalHeader = 'Add New Account';
-      const uuid = await this.httpService.getNewUUID('http://localhost:9001/accounts/new');
+      const uuid = await this.httpService.getNewUUID(`${environment.baseUrl}${environment.accountsEndpoint}/new`);
       console.log('rcv\'d: ', uuid);
       this.updateAccountForm = this.fb.group({
         userId: '',
@@ -359,6 +475,15 @@ export class AccountComponent implements OnInit {
     this.modalRef.close();
     this.depositReady = false;
     this.editing = false;
+  }
+
+  updatePage(){
+    this.accounts = [];
+
+    this.assemblePredicate();
+
+    this.update();
+    this.initializeForms();
   }
 
   get user() { return this.updateAccountForm.get('user'); }

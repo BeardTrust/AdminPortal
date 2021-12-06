@@ -1,3 +1,8 @@
+
+
+/**
+ * The User model for parsing UserEntitys from the back-end
+ */
 export class User {
 
     userId: String;

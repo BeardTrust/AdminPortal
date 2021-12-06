@@ -1,12 +1,17 @@
 import { Cardtype } from "./cardtype.model";
 import { CurrencyValue } from "./currencyvalue.model";
+import { Payment } from "./payment.model";
 
+/**
+ * The Card model for parsing CardEntitys from the back-end
+ */
 export class Card {
 
     private cardId: String;
 	private userId: String;
 	private cardType: Cardtype;
 	private balance: CurrencyValue;
+    private payment: Payment;
 	private cardNumber: String;
 	private interestRate: Number;
 	private createDate: String ;
@@ -14,10 +19,11 @@ export class Card {
 	private billCycleLength: Number;
 	private expireDate: String;
 
-	constructor($cardId: String, $userId: String, $cardType: Cardtype , $balance: CurrencyValue, $cardNumber: String, $interestRate: Number, $createDate: String , $nickname: String, $billCycleLength: Number, $expireDate: String) {
+	constructor($cardId: String, $userId: String, $cardType: Cardtype, $payment: Payment, $balance: CurrencyValue, $cardNumber: String, $interestRate: Number, $createDate: String , $nickname: String, $billCycleLength: Number, $expireDate: String) {
 		this.cardId = $cardId;
 		this.userId = $userId;
 		this.cardType = $cardType;
+        this.payment = $payment;
 		this.balance = $balance;
 		this.cardNumber = $cardNumber;
 		this.interestRate = $interestRate;
@@ -35,6 +41,14 @@ export class Card {
 	public get $cardId(): String {
 		return this.cardId;
 	}
+
+    /**
+     * Getter $payment
+     * @return {Payment}
+     */
+    public get $payment(): Payment {
+        return this.payment;
+    }
 
     /**
      * Getter $userId

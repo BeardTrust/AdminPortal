@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { environment } from 'src/environments/environment';
 import { HttpService } from '../../shared/services/http.service';
 
 import { LoantypeComponent } from './loantype.component';
@@ -43,7 +44,7 @@ describe('LoantypeComponent', () => {
       status: 200,
       statusText: 'OK'
     });
-    const call = loanTypeService.expectOne('http://localhost:9001/loantypes?page=0&&size=5');
+    const call = loanTypeService.expectOne(`${environment.baseUrl}${environment.loanTypesEndpoint}?page=0&&size=5`);
     expect(call.request.method).toEqual('GET');
     call.flush(response);
     //cardService.verify();
@@ -70,7 +71,7 @@ describe('LoantypeComponent', () => {
       statusText: 'OK'
     });
 
-    const call = loanTypeService.expectOne('http://localhost:9001/loantypes');
+    const call = loanTypeService.expectOne(`${environment.baseUrl}${environment.loanTypesEndpoint}`);
     expect(call.request.method).toEqual('POST');
     call.flush(response);
   })
@@ -84,7 +85,7 @@ describe('LoantypeComponent', () => {
       statusText: 'OK'
     });
 
-    const call1 = loanTypeService.expectOne('http://localhost:9001/loantypes/1');
+    const call1 = loanTypeService.expectOne(`${environment.baseUrl}${environment.loanTypesEndpoint}/1`);
     expect(call1.request.method).toEqual('DELETE');
     call1.flush(response);
     
@@ -107,7 +108,7 @@ describe('LoantypeComponent', () => {
       statusText: 'OK'
     });
 
-    const call = loanTypeService.expectOne('http://localhost:9001/loantypes');
+    const call = loanTypeService.expectOne(`${environment.baseUrl}${environment.loanTypesEndpoint}`);
     expect(call.request.method).toEqual('PUT');
     call.flush(response);
   })

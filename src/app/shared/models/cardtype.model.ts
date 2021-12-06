@@ -1,3 +1,8 @@
+
+
+/**
+ * The CardType model for parsing CardTypeEntitys from the back-end
+ */
 export class Cardtype {
 
     private id: String;

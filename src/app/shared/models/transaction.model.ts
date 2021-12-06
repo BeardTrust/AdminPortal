@@ -1,5 +1,9 @@
 import {Timestamp} from "rxjs";
 
+
+/**
+ * The Transaction model for parsing FinancialTransacions from the back-end
+ */
 export class TransactionModel {
   private _id: string;
 

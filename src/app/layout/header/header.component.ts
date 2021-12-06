@@ -8,6 +8,9 @@ import {AuthService} from "@services/auth.service";
   changeDetection: ChangeDetectionStrategy.Default
 })
 
+/**
+ * The header coimponent renders the navbar at the top of the page using header.component.html and uses styling from header.component.css
+ */
 export class HeaderComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthService) {
   }

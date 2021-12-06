@@ -6,7 +6,14 @@ export const environment = {
   production: false,
   baseUrl: 'http://localhost:9001',
   authEndpoint: '/users/login',
-  usersEndpoint: '/admin/users'
+  usersEndpoint: '/users',
+  adminEndpoint:'/admin',
+  loansEndpoint: '/loans',
+  loanTypesEndpoint: '/loantypes',
+  accountsEndpoint: '/accounts',
+  cardsEndpoint: '/cards',
+  cardTypesEndpoint: '/cardtypes',
+  transactionsEndpoint: '/transactions'
 };
 
 /*
