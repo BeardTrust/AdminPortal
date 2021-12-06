@@ -1,4 +1,9 @@
 
+
+
+/**
+ * The LoanType model for parsing LoanTypeEntitys from the back-end
+ */
 export class LoanType {
     private id: String;
      activeStatus: boolean;

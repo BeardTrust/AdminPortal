@@ -1,5 +1,9 @@
 import { CurrencyValue } from "./currencyvalue.model";
 
+
+/**
+ * The Payment model for parsing PaymentEntitys from the back-end, used in LoanEntitys and CardEntitys.
+ */
 export class Payment {
     private _id: String;
     private _minDue: CurrencyValue;

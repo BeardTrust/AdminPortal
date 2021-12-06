@@ -1,9 +1,11 @@
-import { ThisReceiver } from "@angular/compiler";
 import {CurrencyValue} from "./currencyvalue.model";
 import { LoanType } from "./loanType.model";
 import { Payment } from "./payment.model";
 import { User } from "./user.model";
 
+/**
+ * The Loan model for parsing LoanEntitys from the back-end
+ */
 export class Loan {
     private user: User;
     private id: String;

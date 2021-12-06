@@ -1,3 +1,7 @@
+
+/**
+ * The CardRegistration model for sending a 'new card' request to the back-end
+ */
 export class CardRegistration {
     private userId: String;
     private cardType: String;

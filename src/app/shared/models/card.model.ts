@@ -2,6 +2,9 @@ import { Cardtype } from "./cardtype.model";
 import { CurrencyValue } from "./currencyvalue.model";
 import { Payment } from "./payment.model";
 
+/**
+ * The Card model for parsing CardEntitys from the back-end
+ */
 export class Card {
 
     private cardId: String;

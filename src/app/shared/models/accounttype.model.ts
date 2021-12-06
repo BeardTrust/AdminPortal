@@ -1,5 +1,8 @@
 
 
+/**
+ * The AccountType model for parsing AccountTtypeEntitys from the back-end
+ */
 export class AccountType {
     private id: number;
     name: String;

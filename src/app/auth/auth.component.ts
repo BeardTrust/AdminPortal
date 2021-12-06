@@ -8,6 +8,9 @@ import {Router} from "@angular/router";
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
+/**
+ * The Auth component contains login functionality using auth.component.html for rendering and auth.component.css for styling
+ */
 export class AuthComponent implements OnInit {
   error: string = '';
 
